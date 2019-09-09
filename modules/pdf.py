@@ -11,16 +11,16 @@ class Pdf:
 
         config = Config()
         self.cover_file_name = config.get_config('pdf',
-                                            'cover_file_name')
+                                                 'cover_file_name')
         self.copyright_file_name = config.get_config('pdf',
-                                            'copyright_file_name')
+                                                     'copyright_file_name')
 
         self.file_list = self.get_file_list()
 
     def get_file_list(self):
         ## Returns a list of the file names stored in self.in_folder
 
-        folder_content = check_output(['ls', '-v1', 
+        folder_content = check_output(['ls', '-v1',
                                        '-I', self.cover_file_name,
                                        '-I', self.copyright_file_name,
                                        self.input_folder])
@@ -53,4 +53,3 @@ class Pdf:
         run(cmd)
         print('{}: Created' \
               .format(output_file_name))
-
