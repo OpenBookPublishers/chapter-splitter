@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 from subprocess import check_output, run
+from pdfrw import PdfReader
+from pagelabels import PageLabels
 from os import path
 from config import Config
 
 class Pdf:
-    def __init__(self, input_folder, output_folder):
-        self.input_folder = input_folder
+    def __init__(self, input_file, output_folder):
+        self.input_file = input_file
         self.output_folder = output_folder
 
         config = Config()
@@ -16,6 +18,22 @@ class Pdf:
                                                      'copyright_file_name')
 
         self.file_list = self.get_file_list()
+
+    def get_page_one(self):
+        reader = PdfReader(self.input_file)
+        labels = PageLabels.from_pdf(reader)
+
+        '''
+        The PageLabel tuple looks like this:
+
+        PageLabelScheme(startpage=16,
+                        style='arabic',
+                        prefix='',
+                        firstpagenum=1)
+        '''
+        for label in labels:
+            if label[1] == 'arabic':
+                return label[0]
 
     def get_file_list(self):
         ## Returns a list of the file names stored in self.in_folder
