@@ -12,10 +12,9 @@ class Pdf:
         self.output_folder = output_folder
 
         config = Config()
-        self.cover_file_name = config.get_config('pdf',
-                                                 'cover_file_name')
-        self.copyright_file_name = config.get_config('pdf',
-                                                     'copyright_file_name')
+        self.cover_page_n = config.get_config('pdf', 'cover_page_n')
+        self.copyright_page_n = config.get_config('pdf',
+                                                  'copyright_page_n')
 
         self.file_list = self.get_file_list()
 
