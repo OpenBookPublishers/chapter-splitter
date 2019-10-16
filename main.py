@@ -44,7 +44,7 @@ for doi in ch_dois:
     page_range = p.get_page_range(doi_metadata['page_range'])
     output_file_name = doi.split('/')[1] + '.pdf'
 
-    p.merge_pdfs(page_list, output_file_name)
+    p.merge_pdfs(page_range, output_file_name)
 
     # Write metadata
     output_file_path = path.join(args.output_folder, output_file_name)

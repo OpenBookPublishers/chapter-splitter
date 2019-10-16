@@ -41,16 +41,18 @@ class Pdf:
         page_range = [int(page) + self.page_one for page in page_range]
         return page_range
 
-    def merge_pdfs(self, page_list, output_file_name):
+    def merge_pdfs(self, page_range, output_file_name):
         ## Executes the command to merge the PDF files
 
-        cmd = ['pdfunite']
-        cmd.append(path.join(self.input_folder, self.cover_file_name))
-        cmd.append(path.join(self.input_folder, self.copyright_file_name))
-        cmd.extend([path.join(self.input_folder, value) \
-                    for value in page_list])
+        cmd = ['pdftk']
+        cmd.append('A={}'.format(self.input_file))
+        cmd.append('cat')
+        cmd.append('A{}'.format(self.cover_page_n))
+        cmd.append('A{}'.format(self.copyright_page_n))
+        cmd.append('A{}-{}'.format(page_range[0], page_range[1]))
+        cmd.append('output')
         cmd.append(path.join(self.output_folder, output_file_name))
-
         run(cmd)
+
         print('{}: Created' \
               .format(output_file_name))
