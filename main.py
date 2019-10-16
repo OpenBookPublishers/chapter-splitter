@@ -8,7 +8,7 @@ sys.path.append('modules')
 from doi import Doi
 from pdf import Pdf
 from metadata import Metadata
-from checks import path_checks, dependencies_checks
+from checks import path_checks, file_checks, dependencies_checks
 
 
 parser = argparse.ArgumentParser(description='chapter-splitter')
@@ -24,6 +24,7 @@ parser.add_argument('-d', '--doi',
 args = parser.parse_args()
 
 # Check parsed arguments
+file_checks(args.input_file)
 path_checks(args.output_folder)
 
 # Check dependencies
