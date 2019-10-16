@@ -16,8 +16,6 @@ class Pdf:
         self.copyright_page_n = config.get_config('pdf',
                                                   'copyright_page_n')
 
-        self.file_list = self.get_file_list()
-
     def get_page_one(self):
         reader = PdfReader(self.input_file)
         labels = PageLabels.from_pdf(reader)
@@ -33,20 +31,6 @@ class Pdf:
         for label in labels:
             if label[1] == 'arabic':
                 return label[0]
-
-    def get_file_list(self):
-        ## Returns a list of the file names stored in self.in_folder
-
-        folder_content = check_output(['ls', '-v1',
-                                       '-I', self.cover_file_name,
-                                       '-I', self.copyright_file_name,
-                                       self.input_folder])
-        file_list = str(folder_content, 'utf-8').split('\n')
-
-        # For convenience, insert an empty item at file_list[0],
-        # so that the file name of page 1 is at file_list[1]
-        file_list.insert(0, '')
-        return file_list
 
     def get_page_list(self, page_range):
         ## Returns a list of the file names in the range page_range
