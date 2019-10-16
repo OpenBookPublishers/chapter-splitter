@@ -41,7 +41,7 @@ for doi in ch_dois:
     doi_metadata = m.gather_metadata(doi)
 
     # Produce the PDF
-    page_list = p.get_page_list(doi_metadata['page_range'])
+    page_range = p.get_page_range(doi_metadata['page_range'])
     output_file_name = doi.split('/')[1] + '.pdf'
 
     p.merge_pdfs(page_list, output_file_name)
