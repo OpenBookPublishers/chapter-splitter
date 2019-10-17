@@ -1,55 +1,58 @@
 #!/usr/bin/env python3
 
 from subprocess import check_output, run
+from pdfrw import PdfReader
+from pagelabels import PageLabels
 from os import path
 from config import Config
 
 class Pdf:
-    def __init__(self, input_folder, output_folder):
-        self.input_folder = input_folder
+    def __init__(self, input_file, output_folder):
+        self.input_file = input_file
         self.output_folder = output_folder
 
         config = Config()
-        self.cover_file_name = config.get_config('pdf',
-                                                 'cover_file_name')
-        self.copyright_file_name = config.get_config('pdf',
-                                                     'copyright_file_name')
+        self.cover_page_n = config.get_config('pdf', 'cover_page_n')
+        self.copyright_page_n = config.get_config('pdf',
+                                                  'copyright_page_n')
 
-        self.file_list = self.get_file_list()
+        self.page_one = self.get_page_one()
 
-    def get_file_list(self):
-        ## Returns a list of the file names stored in self.in_folder
+    def get_page_one(self):
+        reader = PdfReader(self.input_file)
+        labels = PageLabels.from_pdf(reader)
 
-        folder_content = check_output(['ls', '-v1',
-                                       '-I', self.cover_file_name,
-                                       '-I', self.copyright_file_name,
-                                       self.input_folder])
-        file_list = str(folder_content, 'utf-8').split('\n')
+        '''
+        The PageLabel tuple looks like this:
 
-        # For convenience, insert an empty item at file_list[0],
-        # so that the file name of page 1 is at file_list[1]
-        file_list.insert(0, '')
-        return file_list
+        PageLabelScheme(startpage=16,
+                        style='arabic',
+                        prefix='',
+                        firstpagenum=1)
+        '''
+        for label in labels:
+            if label[1] == 'arabic':
+                return label[0]
 
-    def get_page_list(self, page_range):
-        ## Returns a list of the file names in the range page_range
+    def get_page_range(self, page_range):
+        ## Returns a list of the effective chapter page range
 
         # Convert the page numbers to int object type
-        page_range = [int(page) for page in page_range]
+        page_range = [int(page) + self.page_one for page in page_range]
+        return page_range
 
-        return [value for counter, value in enumerate(self.file_list) \
-                if (page_range[0] <= counter <= page_range[1])]
-
-    def merge_pdfs(self, page_list, output_file_name):
+    def merge_pdfs(self, page_range, output_file_name):
         ## Executes the command to merge the PDF files
 
-        cmd = ['pdfunite']
-        cmd.append(path.join(self.input_folder, self.cover_file_name))
-        cmd.append(path.join(self.input_folder, self.copyright_file_name))
-        cmd.extend([path.join(self.input_folder, value) \
-                    for value in page_list])
+        cmd = ['pdftk']
+        cmd.append('A={}'.format(self.input_file))
+        cmd.append('cat')
+        cmd.append('A{}'.format(self.cover_page_n))
+        cmd.append('A{}'.format(self.copyright_page_n))
+        cmd.append('A{}-{}'.format(page_range[0], page_range[1]))
+        cmd.append('output')
         cmd.append(path.join(self.output_folder, output_file_name))
-
         run(cmd)
+
         print('{}: Created' \
               .format(output_file_name))
