@@ -10,6 +10,22 @@ from pdf import Pdf
 from metadata import Metadata
 from checks import path_checks, file_checks, dependencies_checks
 
+
+def do_split(m, p, output_dir, doi):
+    # Gather metadata for 'doi'
+    doi_metadata = m.gather_metadata(doi)
+
+    # Produce the PDF
+    page_range = p.get_page_range(doi_metadata['page_range'])
+    output_file_name = doi.split('/')[1] + '.pdf'
+
+    p.merge_pdfs(page_range, output_file_name)
+
+    # Write metadata
+    output_file_path = path.join(output_dir, output_file_name)
+    m.write_metadata(doi_metadata, output_file_path)
+
+
 def run():
     parser = argparse.ArgumentParser(description='chapter-splitter')
 
@@ -38,18 +54,7 @@ def run():
     p = Pdf(args.input_file, args.output_folder)
 
     for doi in ch_dois:
-        # Gather metadata for 'doi'
-        doi_metadata = m.gather_metadata(doi)
-
-        # Produce the PDF
-        page_range = p.get_page_range(doi_metadata['page_range'])
-        output_file_name = doi.split('/')[1] + '.pdf'
-
-        p.merge_pdfs(page_range, output_file_name)
-
-        # Write metadata
-        output_file_path = path.join(args.output_folder, output_file_name)
-        m.write_metadata(doi_metadata, output_file_path)
+        do_split(m, p, args.output_folder, doi)
 
 if __name__ == '__main__':
     run()
