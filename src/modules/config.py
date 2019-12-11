@@ -3,6 +3,7 @@
 from os import path
 import configparser
 
+
 class Config:
     def __init__(self):
         # Get config file absolute path
