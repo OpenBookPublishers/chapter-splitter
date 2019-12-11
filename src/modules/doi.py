@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import requests
-from config import Config
+from .config import Config
 
 
 class Doi:

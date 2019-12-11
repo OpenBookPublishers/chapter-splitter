@@ -5,7 +5,7 @@ from os import path
 from datetime import datetime
 from subprocess import run
 import requests
-from config import Config
+from .config import Config
 
 
 class Metadata:

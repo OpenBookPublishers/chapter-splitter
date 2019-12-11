@@ -2,13 +2,10 @@
 
 import argparse
 from os import path
-import sys
-sys.path.append('modules')
-
-from doi import Doi
-from pdf import Pdf
-from metadata import Metadata
-from checks import path_checks, file_checks, dependencies_checks
+from modules.doi import Doi
+from modules.pdf import Pdf
+from modules.metadata import Metadata
+from modules.checks import path_checks, file_checks, dependencies_checks
 
 
 def do_split(m, p, output_dir, doi):

@@ -4,7 +4,7 @@ from subprocess import run
 from pdfrw import PdfReader
 from pagelabels import PageLabels
 from os import path
-from config import Config
+from .config import Config
 
 
 class Pdf:
