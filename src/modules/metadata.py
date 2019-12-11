@@ -25,9 +25,9 @@ class Metadata:
                     'page_range': json_data['message']['page'].split('-'),
                     'book_title': json_data['message']['container-title'][0],
                     'chapter_title': json_data['message']['title'][0],
-                    'author_name_0': self.get_author_name(json_data, 0),
-                    'author_name_1': self.get_author_name(json_data, 1),
-                    'author_name_2': self.get_author_name(json_data, 2),
+                    'author_name_0': Metadata.get_author_name(json_data, 0),
+                    'author_name_1': Metadata.get_author_name(json_data, 1),
+                    'author_name_2': Metadata.get_author_name(json_data, 2),
                     'ISBN': json_data['message']['ISBN'][2]
                     }
 
@@ -42,7 +42,8 @@ class Metadata:
         request = requests.get(''.join([self.api_url, doi]))
         return json.loads(request.text)
 
-    def get_author_name(self, json_data, position):
+    @staticmethod
+    def get_author_name(json_data, position):
         """
         Returns author name (if any)
         """
@@ -54,7 +55,8 @@ class Metadata:
                            json_data['message']['author'][position]['family'])
         return name
 
-    def write_metadata(self, metadata, output_file_path):
+    @staticmethod
+    def write_metadata(metadata, output_file_path):
         """
         Writes metadata to file_name
 
@@ -65,7 +67,8 @@ class Metadata:
         """
 
         arguments = ['-Title={chapter_title}'.format(**metadata),
-                     '-Author={}'.format(self.join_author_names(metadata)),
+                     '-Author={}'.format(Metadata
+                                         .join_author_names(metadata)),
                      '-Producer={publisher_name}'.format(**metadata),
                      '-ModDate={}'.format(datetime.now()
                                           .strftime("%Y:%m:%d %T"))]
@@ -79,7 +82,8 @@ class Metadata:
         print('{}: Metadata written'
               .format(path.split(output_file_path)[1]))
 
-    def join_author_names(self, metadata):
+    @staticmethod
+    def join_author_names(metadata):
         """
         Returns a string with author names, separated by semicolon
         """

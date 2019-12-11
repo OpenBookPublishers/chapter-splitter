@@ -23,7 +23,7 @@ def do_split(m, p, output_dir, doi):
 
     # Write metadata
     output_file_path = path.join(output_dir, output_file_name)
-    m.write_metadata(doi_metadata, output_file_path)
+    Metadata.write_metadata(doi_metadata, output_file_path)
 
 
 def run():
