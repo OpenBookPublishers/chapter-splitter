@@ -29,3 +29,11 @@ $ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm --doi 10.11647/OBP.0152`
 
 ### What can be improved
 * Add more metadata information to files (for a start: publication date, abstract, keywords)
+
+
+### Git hooks
+Use `pre-commit.sh` as a pre commit git hook to build a test image that will run `flake8` to enforce PEP8 style.
+
+```
+ln -sf ../../pre-commit.sh .git/hooks/pre-commit
+```
