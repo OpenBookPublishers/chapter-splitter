@@ -1,0 +1,8 @@
+FROM python:3.8.0-slim-buster
+
+WORKDIR /ebook_automation
+
+RUN pip install flake8==3.7.7
+
+COPY ./src/ ./
+RUN flake8 ./
