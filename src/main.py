@@ -30,12 +30,12 @@ def run():
     parser = argparse.ArgumentParser(description='chapter-splitter')
 
     parser.add_argument('input_file',
-                        help = 'PDF file to elaborate')
+                        help='PDF file to elaborate')
     parser.add_argument('output_folder',
-                        help = 'Output folder where to store the new PDFs')
+                        help='Output folder where to store the new PDFs')
     parser.add_argument('-d', '--doi',
-                        help = 'The DOI (at book-level) you wish to parse',
-                        required = True)
+                        help='The DOI (at book-level) you wish to parse',
+                        required=True)
 
     args = parser.parse_args()
 
@@ -55,6 +55,7 @@ def run():
 
     for doi in ch_dois:
         do_split(m, p, args.output_folder, doi)
+
 
 if __name__ == '__main__':
     run()
