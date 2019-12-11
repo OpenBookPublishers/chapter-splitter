@@ -1,2 +1,2 @@
-requests
-pagelabels
+requests==2.22.0
+pagelabels==1.1.1
