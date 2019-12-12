@@ -5,6 +5,7 @@ from pdfrw import PdfReader
 from pagelabels import PageLabels
 from os import path
 from .config import Config
+import roman
 
 
 class Pdf:
@@ -40,8 +41,14 @@ class Pdf:
         Returns a list of the effective chapter page range
         """
 
-        # Convert the page numbers to int object type
-        page_range = [int(page) + self.page_one for page in page_range]
+        # Check if the page range is numeric or roman numeral
+        if page_range[0].isnumeric() and page_range[1].isnumeric():
+            # Convert the page numbers to int object type
+            page_range = [int(page) + self.page_one for page in page_range]
+        else:
+            # Convert pages to arabic numeral and add 1 (cover page)
+            page_range = [roman.fromRoman(page.upper()) + 1
+                          for page in page_range]
         return page_range
 
     def merge_pdfs(self, page_range, output_file_name):

@@ -33,6 +33,8 @@ Example:
 
 $ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm --doi 10.11647/OBP.0152`
 
+You may specify `--compress-output` to output a zip file containing all the curated (without the 'original', metadata less, files) chapter PDFs.
+
 ## Development
 ### What works
 * Chapter-level DOI discovery

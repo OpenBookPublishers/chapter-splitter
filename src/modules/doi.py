@@ -7,6 +7,7 @@ from .config import Config
 class Doi:
     def __init__(self, book_level_doi):
         self.book_level_doi = book_level_doi
+        self.book_level_doi_suffix = book_level_doi.split('/')[1]
 
         config = Config()
         self.api_url = config.get_config('metadata', 'api_url')
