@@ -56,7 +56,7 @@ def run():
     dependencies_checks()
 
     # Discover chapter-level DOIs of the supplied --doi value
-    d = Doi(args.doi)
+    d = Doi(args.doi.lower())
     ch_dois = d.discover_ch_dois()
 
     m = Metadata()
