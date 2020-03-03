@@ -6,7 +6,7 @@
 docker run --rm \
   -v /path/to/local.pdf:/ebook_automation/pdf_file.pdf \
   -v /path/to/output:/ebook_automation/output \
-  -e DOI=10.11647/OBP.0001 \
+  -e ISBN=9781783748457 \
   openbookpublishers/chapter-splitter
 ```
 

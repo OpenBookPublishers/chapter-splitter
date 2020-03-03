@@ -36,12 +36,12 @@ def run():
                         help='PDF file to elaborate')
     parser.add_argument('output_folder',
                         help='Output folder where to store the new PDFs')
-    parser.add_argument('-d', '--doi',
-                        help='The DOI (at book-level) you wish to parse',
-                        required=True)
     parser.add_argument('-c', '--compress-output', dest='compress',
                         action='store_true',
                         help='If set it will output a single zip file')
+    parser.add_argument('-i', '--isbn',
+                        help='A valid ISBN of the edition',
+                        required=True)
 
     args = parser.parse_args()
 
@@ -55,9 +55,9 @@ def run():
     # Check dependencies
     dependencies_checks()
 
-    # Discover chapter-level DOIs of the supplied --doi value
-    d = Doi(args.doi.lower())
-    ch_dois = d.discover_ch_dois()
+    # Discover chapter-level DOIs
+    d = Doi(args.isbn)
+    ch_dois = d.get_ch_dois()
 
     m = Metadata()
     p = Pdf(args.input_file, tmp_dir)
@@ -66,7 +66,7 @@ def run():
         do_split(m, p, tmp_dir, doi)
 
     if args.compress:
-        out_file = '{}/{}.zip'.format(out_dir, d.book_level_doi_suffix)
+        out_file = '{}/{}.zip'.format(out_dir, d.get_doi_suffix())
         suffix = '_original'
         files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
         with ZipFile(out_file, 'w') as zipfile:
