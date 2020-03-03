@@ -36,9 +36,6 @@ def run():
                         help='PDF file to elaborate')
     parser.add_argument('output_folder',
                         help='Output folder where to store the new PDFs')
-    parser.add_argument('-d', '--doi',
-                        help='The DOI (at book-level) you wish to parse',
-                        required=True)
     parser.add_argument('-c', '--compress-output', dest='compress',
                         action='store_true',
                         help='If set it will output a single zip file')
