@@ -16,4 +16,7 @@ RUN rm requirements.txt
 
 COPY ./src/ ./
 
-CMD python main.py ./pdf_file.pdf ./output --doi $DOI --compress-output
+CMD python main.py ./pdf_file.pdf ./output \
+		   --doi $DOI \
+		   --compress-output \
+		   --isbn $ISBN

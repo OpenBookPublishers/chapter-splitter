@@ -42,6 +42,9 @@ def run():
     parser.add_argument('-c', '--compress-output', dest='compress',
                         action='store_true',
                         help='If set it will output a single zip file')
+    parser.add_argument('-i', '--isbn',
+                        help='A valid ISBN of the edition',
+                        required=True)
 
     args = parser.parse_args()
 
@@ -55,9 +58,9 @@ def run():
     # Check dependencies
     dependencies_checks()
 
-    # Discover chapter-level DOIs of the supplied --doi value
+    # Discover chapter-level DOIs
     d = Doi(args.doi.lower())
-    ch_dois = d.discover_ch_dois()
+    ch_dois = d.discover_ch_dois(args.isbn)
 
     m = Metadata()
     p = Pdf(args.input_file, tmp_dir)
