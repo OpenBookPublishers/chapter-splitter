@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
 
-from .config import Config
 from crossref.restful import Works
 
 class Doi:
-    def __init__(self, book_level_doi):
-        self.book_level_doi = book_level_doi
-        self.book_level_doi_suffix = book_level_doi.split('/')[1]
+    def __init__(self, isbn):
+        self.works = Works()
+        self.isbn = isbn
 
-        config = Config()
-        self.api_url = config.get_config('metadata', 'api_url')
-        self.doi_separator_char = config.get_config('doi',
-                                                    'separator_char')
-        self.doi_leading_zeros = config.get_config('doi',
-                                                   'leading_zeros')
-
-    def discover_ch_dois(self, isbn):
+    def get_ch_dois(self):
         '''
         Discovers chapter DOIs by quering Crossref agains the
         supplied isbn value. Returns a python list with the
@@ -24,9 +16,9 @@ class Doi:
 
         print('Start discovery of chapter-level DOIs')
 
-        works = Works()
         ch_dois = [item['DOI'] \
-                   for item in works.filter(isbn=isbn, type='book-chapter')]
+                   for item in self.works.filter(isbn=self.isbn, \
+                                                 type='book-chapter')]
 
         # Assert that at least one DOI have been discovered
         if not ch_dois:
@@ -34,3 +26,17 @@ class Doi:
                                  + ' for the supplied --isbn value')
 
         return ch_dois
+
+    def get_doi_suffix(self):
+        '''
+        Return the book DOI suffix (string)
+        '''
+
+        data = self.works.filter(isbn=self.isbn, type='book')
+
+        for item in data:
+            doi = item['DOI']
+            prefix = doi.split('/')[1]
+            continue
+
+        return prefix

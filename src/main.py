@@ -59,8 +59,8 @@ def run():
     dependencies_checks()
 
     # Discover chapter-level DOIs
-    d = Doi(args.doi.lower())
-    ch_dois = d.discover_ch_dois(args.isbn)
+    d = Doi(args.isbn)
+    ch_dois = d.get_ch_dois()
 
     m = Metadata()
     p = Pdf(args.input_file, tmp_dir)
@@ -69,7 +69,7 @@ def run():
         do_split(m, p, tmp_dir, doi)
 
     if args.compress:
-        out_file = '{}/{}.zip'.format(out_dir, d.book_level_doi_suffix)
+        out_file = '{}/{}.zip'.format(out_dir, d.get_doi_suffix())
         suffix = '_original'
         files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
         with ZipFile(out_file, 'w') as zipfile:
