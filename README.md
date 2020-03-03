@@ -22,26 +22,20 @@ Besides python standard libraries, *chapter-splitter* requires some extra-librar
 #### Configuration
 The *config.ini* file takes base configuration settings.
 * *api_url* is the base URL of the API where to gather DOI metadata.
-* *separator_char* is the character which separates the book DOI from the chapter-level sequential number (i.e. 10.11647/OBP.0152 **.** 01).
-* *leading_zeros* is the number of leading zeros in the chapter-level DOI number progression (i.e. 01, 10, 100).
 * *cover_page_n* and *copyright_page_n* note the page number for cover and copyright page.
 
 ### Use
-Run the script as `python3 main.py ./input_file.pdf /output/folder --doi doi.number`. Type `python3 main.py --help` for more info.
+Run the script as `python3 main.py ./input_file.pdf /output/folder --isbn isbn.number`. Type `python3 main.py --help` for more info.
 
 Example:
 
-$ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm --doi 10.11647/OBP.0152`
+$ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm --isbn 9781783745593`
 
 You may specify `--compress-output` to output a zip file containing all the curated (without the 'original', metadata less, files) chapter PDFs.
 
-## Development
-### What works
-* Chapter-level DOI discovery
-* PDF files merging
-* Write metadata to PDF files
-
+## Dev
 ### What can be improved
+* Use CrossRef API in the metadata.py module
 * Add more metadata information to files (for a start: publication date, abstract, keywords)
 
 
