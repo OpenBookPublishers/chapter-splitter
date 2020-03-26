@@ -32,11 +32,15 @@ class Doi:
         Return the book DOI suffix (string)
         '''
 
-        data = self.works.filter(isbn=self.isbn, type='book')
+        book_types = ['monograph', 'edited-book']
 
-        for item in data:
-            doi = item['DOI']
-            prefix = doi.split('/')[1]
-            continue
+        for book_type in book_types:
+            doi = [item['DOI'] \
+                   for item in self.works.filter(isbn=self.isbn, \
+                                                 type=book_type)]
+            if doi:
+                break
+        else:
+            raise AssertionError('Couln\'t find book DOI')
 
-        return prefix
+        return doi[0].split('/')[1]
