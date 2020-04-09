@@ -4,7 +4,6 @@ import argparse
 from os import path, listdir
 import tempfile
 from zipfile import ZipFile
-from modules.doi import Doi
 from modules.pdf import Pdf
 from modules.metadata import Metadata
 from modules.checks import path_checks, file_checks, dependencies_checks
@@ -55,18 +54,15 @@ def run():
     # Check dependencies
     dependencies_checks()
 
-    # Discover chapter-level DOIs
-    d = Doi(args.isbn)
-    ch_dois = d.get_ch_dois()
-
-    m = Metadata()
+    metadata = Metadata(args.isbn)
+    ch_dois = metadata.get_ch_dois()
     p = Pdf(args.input_file, tmp_dir)
 
     for doi in ch_dois:
-        do_split(m, p, tmp_dir, doi)
+        do_split(metadata, p, tmp_dir, doi)
 
     if args.compress:
-        out_file = '{}/{}.zip'.format(out_dir, d.get_doi_suffix())
+        out_file = '{}/{}.zip'.format(out_dir, metadata.get_doi_suffix())
         suffix = '_original'
         files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
         with ZipFile(out_file, 'w') as zipfile:
