@@ -1,18 +1,13 @@
 #!/usr/bin/env python3
 
-import json
 from os import path
 from datetime import datetime
 from subprocess import run
-import requests
-from .config import Config
 from crossref.restful import Works
 
 
 class Metadata:
     def __init__(self, isbn):
-        config = Config()
-        self.api_url = config.get_config('metadata', 'api_url')
         self.works = Works()
         self.isbn = isbn
         self.book_metadata = self.get_book_metadata()
@@ -26,7 +21,8 @@ class Metadata:
 
         return self.works.filter(isbn=self.isbn) \
                          .select('DOI', 'license', 'author',
-                                 'title', 'type', 'page')
+                                 'title', 'type', 'page',
+                                 'publisher', 'container-title')
 
     def get_ch_dois(self):
         '''
@@ -53,7 +49,7 @@ class Metadata:
         Return the book DOI suffix (string)
         '''
 
-        book_types = ['monograph', 'edited-book']
+        book_types = ['monograph', 'edited-book', 'book']
 
         book_doi = [item['DOI'] \
                     for item in self.book_metadata \
@@ -69,41 +65,36 @@ class Metadata:
         Returns a dictionary filled with metadata of doi
         """
 
-        json_data = self.get_json_data(doi)
+        # Select the self.book_metadata entry against doi
+        for item in self.book_metadata:
+            if item['DOI'] == doi:
+                data = item
+                break
 
-        metadata = {'publisher_name': json_data['message']['publisher'],
-                    'licence_url': json_data['message']['license'][0]['URL'],
-                    'page_range': json_data['message']['page'].split('-'),
-                    'book_title': json_data['message']['container-title'][0],
-                    'chapter_title': json_data['message']['title'][0],
-                    'author_name_0': Metadata.get_author_name(json_data, 0),
-                    'author_name_1': Metadata.get_author_name(json_data, 1),
-                    'author_name_2': Metadata.get_author_name(json_data, 2),
-                    'ISBN': json_data['message']['ISBN'][2]
-                    }
+        metadata = {'publisher_name': data['publisher'],
+                    'licence_url': data['license'][0]['URL'],
+                    'page_range': data['page'].split('-'),
+                    'book_title': data['container-title'][0],
+                    'chapter_title': data['title'][0],
+                    'author_name_0': self.get_author_name(data, 0),
+                    'author_name_1': self.get_author_name(data, 1),
+                    'author_name_2': self.get_author_name(data, 2)
+        }
 
         print('{}: Metadata gathered'.format(doi))
         return metadata
 
-    def get_json_data(self, doi):
-        """
-        Return json data of doi
-        """
-
-        request = requests.get(''.join([self.api_url, doi]))
-        return json.loads(request.text)
-
     @staticmethod
-    def get_author_name(json_data, position):
+    def get_author_name(data, position):
         """
-        Returns author name (if any)
+        Returns author name (if specified for the given porision)
         """
 
         name = ''
-        if len(json_data['message']['author']) > position:
+        if len(data['author']) > position:
             name = '{} {}'\
-                   .format(json_data['message']['author'][position]['given'],
-                           json_data['message']['author'][position]['family'])
+                   .format(data['author'][position]['given'],
+                           data['author'][position]['family'])
         return name
 
     @staticmethod

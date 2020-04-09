@@ -1,4 +1,3 @@
-requests==2.22.0
 pagelabels==1.1.1
 roman==3.2
 crossrefapi==1.4.0
