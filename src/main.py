@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import argparse
 from os import path, listdir
 import tempfile
 from zipfile import ZipFile
+from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
 from modules.checks import path_checks, file_checks, dependencies_checks
@@ -29,39 +29,28 @@ def get_tmp_dir():
 
 
 def run():
-    parser = argparse.ArgumentParser(description='chapter-splitter')
 
-    parser.add_argument('input_file',
-                        help='PDF file to elaborate')
-    parser.add_argument('output_folder',
-                        help='Output folder where to store the new PDFs')
-    parser.add_argument('-c', '--compress-output', dest='compress',
-                        action='store_true',
-                        help='If set it will output a single zip file')
-    parser.add_argument('-i', '--isbn',
-                        help='A valid ISBN of the edition',
-                        required=True)
+    # Create an instance of the core objectxs
+    core = Core()
 
-    args = parser.parse_args()
-
-    out_dir = args.output_folder
-    tmp_dir = out_dir if not args.compress else get_tmp_dir()
+    out_dir = core.argv.output_folder
+    tmp_dir = out_dir if not core.argv.compress else get_tmp_dir()
 
     # Check parsed arguments
-    file_checks(args.input_file)
+    file_checks(core.argv.input_file)
     path_checks(out_dir)
 
     # Check dependencies
     dependencies_checks()
 
-    metadata = Metadata(args.isbn)
+    metadata = Metadata(core.argv.isbn)
     ch_dois = metadata.get_ch_dois()
-    p = Pdf(args.input_file, tmp_dir)
+    p = Pdf(core.argv.input_file, tmp_dir)
 
     for doi in ch_dois:
         do_split(metadata, p, tmp_dir, doi)
 
-    if args.compress:
+    if core.argv.compress:
         out_file = '{}/{}.zip'.format(out_dir, metadata.get_doi_suffix())
         suffix = '_original'
         files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
