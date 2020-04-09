@@ -6,23 +6,35 @@ class Doi:
     def __init__(self, isbn):
         self.works = Works()
         self.isbn = isbn
+        self.book_metadata = self.get_book_metadata()
+
+    def get_book_metadata(self):
+        '''
+        Get book metadata, which include all the entries
+        associated to the supplied ISBN
+        (i.e. type: book, book-chapter)
+        '''
+
+        return self.works.filter(isbn=self.isbn) \
+                         .select('DOI', 'license', 'author',
+                                 'title', 'type', 'page')
 
     def get_ch_dois(self):
         '''
-        Discovers chapter DOIs by quering Crossref agains the
-        supplied isbn value. Returns a python list with the
-        'chaper level' DOIs.
+        Discovers chapter DOIs by querying Crossref against the
+        supplied ISBN value. Returns a python list with the
+        'chapter level' DOIs.
         '''
 
         print('Start discovery of chapter-level DOIs')
 
         ch_dois = [item['DOI'] \
-                   for item in self.works.filter(isbn=self.isbn, \
-                                                 type='book-chapter')]
+                   for item in self.book_metadata \
+                   if item['type'] == 'book-chapter']
 
         # Assert that at least one DOI have been discovered
         if not ch_dois:
-            raise AssertionError('Couln\'t find any chapter-level DOIs'
+            raise AssertionError('Couldn\'t find any chapter-level DOIs'
                                  + ' for the supplied --isbn value')
 
         return ch_dois
@@ -34,13 +46,11 @@ class Doi:
 
         book_types = ['monograph', 'edited-book']
 
-        for book_type in book_types:
-            doi = [item['DOI'] \
-                   for item in self.works.filter(isbn=self.isbn, \
-                                                 type=book_type)]
-            if doi:
-                break
-        else:
-            raise AssertionError('Couln\'t find book DOI')
+        book_doi = [item['DOI'] \
+                    for item in self.book_metadata \
+                    if item['type'] in book_types]
 
-        return doi[0].split('/')[1]
+        if not book_doi:
+            raise AssertionError('Couldn\'t find book DOI')
+
+        return book_doi[0].split('/')[1]
