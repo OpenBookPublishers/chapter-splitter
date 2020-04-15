@@ -1,73 +1,50 @@
 #!/usr/bin/env python3
 
-import argparse
-from os import path, listdir
+import os
 import tempfile
-from zipfile import ZipFile
+from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
 from modules.checks import path_checks, file_checks, dependencies_checks
 
 
-def do_split(m, p, output_dir, doi):
-    # Gather metadata for 'doi'
-    doi_metadata = m.gather_metadata(doi)
-
-    # Produce the PDF
-    page_range = p.get_page_range(doi_metadata['page_range'])
-    output_file_name = doi.split('/')[1] + '.pdf'
-
-    p.merge_pdfs(page_range, output_file_name)
-
-    # Write metadata
-    output_file_path = path.join(output_dir, output_file_name)
-    Metadata.write_metadata(doi_metadata, output_file_path)
-
-
-def get_tmp_dir():
-    return tempfile.mkdtemp()
-
-
 def run():
-    parser = argparse.ArgumentParser(description='chapter-splitter')
+    # Destruction of the temporary directory on completion
+    with tempfile.TemporaryDirectory() as tmp_dir:
 
-    parser.add_argument('input_file',
-                        help='PDF file to elaborate')
-    parser.add_argument('output_folder',
-                        help='Output folder where to store the new PDFs')
-    parser.add_argument('-c', '--compress-output', dest='compress',
-                        action='store_true',
-                        help='If set it will output a single zip file')
-    parser.add_argument('-i', '--isbn',
-                        help='A valid ISBN of the edition',
-                        required=True)
+        # Create core object instace
+        core = Core(tmp_dir)
 
-    args = parser.parse_args()
+        # Checks
+        file_checks(core.argv.input_file)
+        path_checks(core.argv.output_folder)
+        dependencies_checks()
 
-    out_dir = args.output_folder
-    tmp_dir = out_dir if not args.compress else get_tmp_dir()
+        # Create object instaces
+        metadata = Metadata(core.argv.isbn)
+        pdf = Pdf(core.argv.input_file, tmp_dir)
 
-    # Check parsed arguments
-    file_checks(args.input_file)
-    path_checks(out_dir)
+        for doi in metadata.get_ch_dois():
+            # Gather metadata for 'doi'
+            doi_metadata = metadata.gather_metadata(doi)
 
-    # Check dependencies
-    dependencies_checks()
+            # Produce the PDF
+            page_range = pdf.get_page_range(doi_metadata['page_range'])
+            output_file_name = doi.split('/')[1] + '.pdf'
 
-    metadata = Metadata(args.isbn)
-    ch_dois = metadata.get_ch_dois()
-    p = Pdf(args.input_file, tmp_dir)
+            pdf.merge_pdfs(page_range, output_file_name)
 
-    for doi in ch_dois:
-        do_split(metadata, p, tmp_dir, doi)
+            # Write metadata
+            output_file_path = os.path.join(tmp_dir, output_file_name)
+            Metadata.write_metadata(doi_metadata, output_file_path)
 
-    if args.compress:
-        out_file = '{}/{}.zip'.format(out_dir, metadata.get_doi_suffix())
-        suffix = '_original'
-        files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
-        with ZipFile(out_file, 'w') as zipfile:
-            for file in files:
-                zipfile.write('{}/{}'.format(tmp_dir, file), file)
+        # PDFs are temporarely stored in tmp_dir
+        if core.argv.compress:
+            # Output a zip archive
+            core.output_archive(metadata.get_doi_suffix())
+        else:
+            # Output loose PDFs
+            core.output_pdfs()
 
 
 if __name__ == '__main__':
