@@ -2,6 +2,7 @@
 
 from os import path, listdir
 import tempfile
+import shutil
 from zipfile import ZipFile
 from modules.core import Core
 from modules.pdf import Pdf
@@ -57,6 +58,12 @@ def run():
         with ZipFile(out_file, 'w') as zipfile:
             for file in files:
                 zipfile.write('{}/{}'.format(tmp_dir, file), file)
+    else:
+        for basename in listdir(tmp_dir):
+            if basename.endswith('.pdf'):
+                pathname = path.join(tmp_dir, basename)
+                if path.isfile(pathname):
+                    shutil.copy2(pathname, core.argv.output_folder)
 
 
 if __name__ == '__main__':
