@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-from os import path, listdir
+import os
 import tempfile
-import shutil
-from zipfile import ZipFile
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
@@ -21,20 +19,16 @@ def do_split(m, p, output_dir, doi):
     p.merge_pdfs(page_range, output_file_name)
 
     # Write metadata
-    output_file_path = path.join(output_dir, output_file_name)
+    output_file_path = os.path.join(output_dir, output_file_name)
     Metadata.write_metadata(doi_metadata, output_file_path)
-
-
-def get_tmp_dir():
-    return tempfile.mkdtemp()
 
 
 def run():
 
     # Destruction of the temporary directory on completion
     with tempfile.TemporaryDirectory() as tmp_dir:
-        # Create an instance of the core objectxs
-        core = Core()
+        # Create an instance of the core objects
+        core = Core(tmp_dir)
 
         # Check parsed arguments
         file_checks(core.argv.input_file)
@@ -50,20 +44,13 @@ def run():
         for doi in ch_dois:
             do_split(metadata, p, tmp_dir, doi)
 
+        # PDFs are temporarely stored in tmp_dir
         if core.argv.compress:
-            out_file = '{}/{}.zip'.format(core.argv.output_folder,
-                                          metadata.get_doi_suffix())
-            suffix = '_original'
-            files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
-            with ZipFile(out_file, 'w') as zipfile:
-                for file in files:
-                    zipfile.write('{}/{}'.format(tmp_dir, file), file)
+            # output a zip archive
+            core.output_archive(metadata.get_doi_suffix())
         else:
-            for basename in listdir(tmp_dir):
-                if basename.endswith('.pdf'):
-                    pathname = path.join(tmp_dir, basename)
-                    if path.isfile(pathname):
-                        shutil.copy2(pathname, core.argv.output_folder)
+            # output loose PDFs
+            core.output_pdfs()
 
 
 if __name__ == '__main__':
