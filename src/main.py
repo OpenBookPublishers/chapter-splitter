@@ -31,39 +31,39 @@ def get_tmp_dir():
 
 def run():
 
-    # Create an instance of the core objectxs
-    core = Core()
+    # Destruction of the temporary directory on completion
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        # Create an instance of the core objectxs
+        core = Core()
 
-    out_dir = core.argv.output_folder
-    tmp_dir = out_dir if not core.argv.compress else get_tmp_dir()
+        # Check parsed arguments
+        file_checks(core.argv.input_file)
+        path_checks(core.argv.output_folder)
 
-    # Check parsed arguments
-    file_checks(core.argv.input_file)
-    path_checks(out_dir)
+        # Check dependencies
+        dependencies_checks()
 
-    # Check dependencies
-    dependencies_checks()
+        metadata = Metadata(core.argv.isbn)
+        ch_dois = metadata.get_ch_dois()
+        p = Pdf(core.argv.input_file, tmp_dir)
 
-    metadata = Metadata(core.argv.isbn)
-    ch_dois = metadata.get_ch_dois()
-    p = Pdf(core.argv.input_file, tmp_dir)
+        for doi in ch_dois:
+            do_split(metadata, p, tmp_dir, doi)
 
-    for doi in ch_dois:
-        do_split(metadata, p, tmp_dir, doi)
-
-    if core.argv.compress:
-        out_file = '{}/{}.zip'.format(out_dir, metadata.get_doi_suffix())
-        suffix = '_original'
-        files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
-        with ZipFile(out_file, 'w') as zipfile:
-            for file in files:
-                zipfile.write('{}/{}'.format(tmp_dir, file), file)
-    else:
-        for basename in listdir(tmp_dir):
-            if basename.endswith('.pdf'):
-                pathname = path.join(tmp_dir, basename)
-                if path.isfile(pathname):
-                    shutil.copy2(pathname, core.argv.output_folder)
+        if core.argv.compress:
+            out_file = '{}/{}.zip'.format(core.argv.output_folder,
+                                          metadata.get_doi_suffix())
+            suffix = '_original'
+            files = filter(lambda w: not w.endswith(suffix), listdir(tmp_dir))
+            with ZipFile(out_file, 'w') as zipfile:
+                for file in files:
+                    zipfile.write('{}/{}'.format(tmp_dir, file), file)
+        else:
+            for basename in listdir(tmp_dir):
+                if basename.endswith('.pdf'):
+                    pathname = path.join(tmp_dir, basename)
+                    if path.isfile(pathname):
+                        shutil.copy2(pathname, core.argv.output_folder)
 
 
 if __name__ == '__main__':
