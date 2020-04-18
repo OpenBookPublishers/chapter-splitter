@@ -62,26 +62,6 @@ class Metadata:
 
         return book_doi[0].split('/')[1]
 
-    def gather_work_data(self, chapter_data):
-        """
-        Get raw chapter_data and return a dictionary of chapter 
-        metadata in a form which is easier to work with.
-        """
-
-        metadata = {'publisher_name': chapter_data['publisher'],
-                    'licence_url': chapter_data['license'][0]['URL'],
-                    'page_range': chapter_data['page'].split('-'),
-                    'book_title': chapter_data['container-title'][0],
-                    'chapter_title': chapter_data['title'][0],
-                    'author_name_0': self.get_author_name(chapter_data, 0),
-                    'author_name_1': self.get_author_name(chapter_data, 1),
-                    'author_name_2': self.get_author_name(chapter_data, 2),
-                    'DOI': chapter_data['DOI']
-        }
-
-        print('{}: Metadata gathered'.format(metadata['DOI']))
-        return metadata
-
     @staticmethod
     def get_author_name(data, position):
         """
@@ -96,20 +76,18 @@ class Metadata:
         return name
 
     @staticmethod
-    def write_metadata(metadata, output_file_path):
+    def write_metadata(chapter_data, output_file_path):
         """
         Writes metadata to file_name
-
-        TODO add following arguments:
-            '-CreationDate={}'
-            '-Keywords={ }'
-            '-Subject={ }' (abstract)
         """
 
-        arguments = ['-Title={chapter_title}'.format(**metadata),
-                     '-Author={}'.format(Metadata
-                                         .join_author_names(metadata)),
-                     '-Producer={publisher_name}'.format(**metadata),
+        arguments = ['-Title={}'.format(chapter_data['title'][0]),
+
+                     '-Author={}'.format(Metadata \
+                                         .join_author_names(chapter_data)),
+
+                     '-Producer={}'.format(chapter_data['publisher']),
+
                      '-ModDate={}'.format(datetime.now()
                                           .strftime("%Y:%m:%d %T"))]
 
@@ -123,17 +101,14 @@ class Metadata:
               .format(path.split(output_file_path)[1]))
 
     @staticmethod
-    def join_author_names(metadata):
+    def join_author_names(chapter_data):
         """
         Returns a string with author names, separated by semicolon
         """
+        # Make a list with author names, i.e. ['Jhon Doe', '']
+        authors = [Metadata.get_author_name(chapter_data, 0),
+                   Metadata.get_author_name(chapter_data, 1),
+                   Metadata.get_author_name(chapter_data, 2)]
 
-        metadata_fields = ['author_name_0',
-                           'author_name_1',
-                           'author_name_2']
-
-        author_names = [metadata[field]
-                        for field in metadata_fields
-                        if metadata[field]]
-
-        return '; '.join(author_names)
+        # Return a string with the names, filtering empty fields
+        return '; '.join(filter(None, authors))

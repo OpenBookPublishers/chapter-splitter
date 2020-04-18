@@ -26,18 +26,15 @@ def run():
 
         # Iterate over chapters metadata
         for chapter_data in metadata.get_chapters_data():
-            # Store data in a form which is easier to work with
-            work_data = metadata.gather_work_data(chapter_data)
-
             # Produce the PDF
-            page_range = pdf.get_page_range(work_data['page_range'])
-            output_file_name = work_data['DOI'].split('/')[1] + '.pdf'
+            page_range = pdf.get_page_range(chapter_data['page'].split('-'))
+            output_file_name = chapter_data['DOI'].split('/')[1] + '.pdf'
 
             pdf.merge_pdfs(page_range, output_file_name)
 
             # Write metadata
             output_file_path = os.path.join(tmp_dir, output_file_name)
-            Metadata.write_metadata(work_data, output_file_path)
+            Metadata.write_metadata(chapter_data, output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
         if core.argv.compress:
