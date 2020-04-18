@@ -24,19 +24,20 @@ def run():
         metadata = Metadata(core.argv.isbn)
         pdf = Pdf(core.argv.input_file, tmp_dir)
 
-        for doi in metadata.get_ch_dois():
-            # Gather metadata for 'doi'
-            doi_metadata = metadata.gather_metadata(doi)
+        # Iterate over chapters metadata
+        for chapter_data in metadata.get_chapters_data():
+            # Store data in a form which is easier to work with
+            work_data = metadata.gather_work_data(chapter_data)
 
             # Produce the PDF
-            page_range = pdf.get_page_range(doi_metadata['page_range'])
-            output_file_name = doi.split('/')[1] + '.pdf'
+            page_range = pdf.get_page_range(work_data['page_range'])
+            output_file_name = work_data['DOI'].split('/')[1] + '.pdf'
 
             pdf.merge_pdfs(page_range, output_file_name)
 
             # Write metadata
             output_file_path = os.path.join(tmp_dir, output_file_name)
-            Metadata.write_metadata(doi_metadata, output_file_path)
+            Metadata.write_metadata(work_data, output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
         if core.argv.compress:

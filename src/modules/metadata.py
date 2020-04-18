@@ -7,9 +7,15 @@ from crossref.restful import Works
 
 
 class Metadata:
+    '''
+    This class retrieve and organise book and chapters metadata
+    associated to the user given ISBN.
+    '''
     def __init__(self, isbn):
         self.works = Works()
         self.isbn = isbn
+
+        # Get book metadata
         self.book_metadata = self.get_book_metadata()
 
     def get_book_metadata(self):
@@ -18,31 +24,27 @@ class Metadata:
         associated to the supplied ISBN
         (i.e. type: book, book-chapter)
         '''
-
         return self.works.filter(isbn=self.isbn) \
                          .select('DOI', 'license', 'author',
                                  'title', 'type', 'page',
                                  'publisher', 'container-title')
 
-    def get_ch_dois(self):
+    def get_chapters_data(self):
         '''
-        Discovers chapter DOIs by querying Crossref against the
-        supplied ISBN value. Returns a python list with the
-        'chapter level' DOIs.
+        Returns a python list of dictionaries with the book chapter data.
+
+        This task is made inexpensive by filtering the broader data set
+        contained in self.book_metadata
         '''
-
-        print('Start discovery of chapter-level DOIs')
-
-        ch_dois = [item['DOI'] \
-                   for item in self.book_metadata \
-                   if item['type'] == 'book-chapter']
+        chapters_data = [item for item in self.book_metadata \
+                         if item['type'] == 'book-chapter']
 
         # Assert that at least one DOI have been discovered
-        if not ch_dois:
+        if not chapters_data:
             raise AssertionError('Couldn\'t find any chapter-level DOIs'
                                  + ' for the supplied --isbn value')
 
-        return ch_dois
+        return chapters_data
 
     def get_doi_suffix(self):
         '''
@@ -60,34 +62,30 @@ class Metadata:
 
         return book_doi[0].split('/')[1]
 
-    def gather_metadata(self, doi):
+    def gather_work_data(self, chapter_data):
         """
-        Returns a dictionary filled with metadata of doi
+        Get raw chapter_data and return a dictionary of chapter 
+        metadata in a form which is easier to work with.
         """
 
-        # Select the self.book_metadata entry against doi
-        for item in self.book_metadata:
-            if item['DOI'] == doi:
-                data = item
-                break
-
-        metadata = {'publisher_name': data['publisher'],
-                    'licence_url': data['license'][0]['URL'],
-                    'page_range': data['page'].split('-'),
-                    'book_title': data['container-title'][0],
-                    'chapter_title': data['title'][0],
-                    'author_name_0': self.get_author_name(data, 0),
-                    'author_name_1': self.get_author_name(data, 1),
-                    'author_name_2': self.get_author_name(data, 2)
+        metadata = {'publisher_name': chapter_data['publisher'],
+                    'licence_url': chapter_data['license'][0]['URL'],
+                    'page_range': chapter_data['page'].split('-'),
+                    'book_title': chapter_data['container-title'][0],
+                    'chapter_title': chapter_data['title'][0],
+                    'author_name_0': self.get_author_name(chapter_data, 0),
+                    'author_name_1': self.get_author_name(chapter_data, 1),
+                    'author_name_2': self.get_author_name(chapter_data, 2),
+                    'DOI': chapter_data['DOI']
         }
 
-        print('{}: Metadata gathered'.format(doi))
+        print('{}: Metadata gathered'.format(metadata['DOI']))
         return metadata
 
     @staticmethod
     def get_author_name(data, position):
         """
-        Returns author name (if specified for the given porision)
+        Returns author name (if specified for the given position)
         """
 
         name = ''
