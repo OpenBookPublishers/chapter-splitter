@@ -87,7 +87,9 @@ class Metadata:
                      '-Author={}'.format(Metadata \
                                          .join_author_names(chapter_data)),
 
+                     # Add information about the producer and publisher
                      '-Producer={}'.format(chapter_data['publisher']),
+                     '-Publisher={}'.format(chapter_data['publisher']),
 
                      '-ModDate={}'.format(datetime.now()
                                           .strftime("%Y:%m:%d %T")),
