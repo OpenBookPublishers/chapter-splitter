@@ -104,7 +104,11 @@ class Metadata:
                      '-Identifier={}'.format(chapter_data['DOI']),
 
                      # Add format to the dc:format field
-                     '-Format={}'.format('application/pdf')]
+                     '-Format={}'.format('application/pdf'),
+
+                     # Add date to the dc:date field
+                     '-Date={}'.format(datetime.now()
+                                       .strftime("%Y:%m:%d"))]
 
         cmd = ['exiftool']
         cmd.append('-q')
