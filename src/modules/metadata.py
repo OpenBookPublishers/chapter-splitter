@@ -108,7 +108,10 @@ class Metadata:
 
                      # Add date to the dc:date field
                      '-Date={}'.format(datetime.now()
-                                       .strftime("%Y:%m:%d"))]
+                                       .strftime("%Y:%m:%d")),
+
+                     # Add language to the dc:language field
+                     '-Language={}'.format('en')]
 
         cmd = ['exiftool']
         cmd.append('-q')
