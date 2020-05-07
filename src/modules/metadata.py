@@ -94,7 +94,10 @@ class Metadata:
 
                      # Add Abstract in the dc:description field
                      '-Description={}'.format(chapter_data \
-                                              .get('abstract', ''))]
+                                              .get('abstract', '')),
+
+                     # Add a copyright notice in the dc:rights field
+                     '-Copyright={}'.format(Metadata.get_rights(chapter_data))]
 
         cmd = ['exiftool']
         cmd.append('-q')
@@ -104,6 +107,22 @@ class Metadata:
         run(cmd)
         print('{}: Metadata written'
               .format(path.split(output_file_path)[1]))
+
+    @staticmethod
+    def get_rights(chapter_data):
+        '''
+        Compose a simple copyright statement, just like:
+        '© John Doe https://creativecommons.org/licenses/by/2.0/'
+
+        Author name and licence link are pulled out from chapter_data
+        '''
+
+        data = {'authors_names': Metadata.join_author_names(chapter_data),
+                'copyright_url': chapter_data.get('license', 'n.d.')[0]['URL']}
+
+        rights_str = '© {authors_names} {copyright_url}'.format(**data)
+
+        return rights_str
 
     @staticmethod
     def join_author_names(chapter_data):
