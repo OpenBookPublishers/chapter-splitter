@@ -27,7 +27,8 @@ class Metadata:
         return self.works.filter(isbn=self.isbn) \
                          .select('DOI', 'license', 'author',
                                  'title', 'type', 'page',
-                                 'publisher', 'container-title')
+                                 'publisher', 'container-title',
+                                 'abstract')
 
     def get_chapters_data(self):
         '''
@@ -89,7 +90,11 @@ class Metadata:
                      '-Producer={}'.format(chapter_data['publisher']),
 
                      '-ModDate={}'.format(datetime.now()
-                                          .strftime("%Y:%m:%d %T"))]
+                                          .strftime("%Y:%m:%d %T")),
+
+                     # Add Abstract in the dc:description field
+                     '-Description={}'.format(chapter_data \
+                                              .get('abstract', ''))]
 
         cmd = ['exiftool']
         cmd.append('-q')
