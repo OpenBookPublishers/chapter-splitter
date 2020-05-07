@@ -101,7 +101,10 @@ class Metadata:
                      '-Copyright={}'.format(Metadata.get_rights(chapter_data)),
 
                      # Add DOI to the dc:identifier field
-                     '-Identifier={}'.format(chapter_data['DOI'])]
+                     '-Identifier={}'.format(chapter_data['DOI']),
+
+                     # Add format to the dc:format field
+                     '-Format={}'.format('application/pdf')]
 
         cmd = ['exiftool']
         cmd.append('-q')
