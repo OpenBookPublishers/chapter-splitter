@@ -87,8 +87,7 @@ class Metadata:
                      '-Author={}'.format(Metadata \
                                          .join_author_names(chapter_data)),
 
-                     # Add information about the producer and publisher
-                     '-Producer={}'.format(chapter_data['publisher']),
+                     # Add publisher to the dc:publisher field
                      '-Publisher={}'.format(chapter_data['publisher']),
 
                      '-ModDate={}'.format(datetime.now()
@@ -99,7 +98,10 @@ class Metadata:
                                               .get('abstract', '')),
 
                      # Add a copyright notice in the dc:rights field
-                     '-Copyright={}'.format(Metadata.get_rights(chapter_data))]
+                     '-Copyright={}'.format(Metadata.get_rights(chapter_data)),
+
+                     # Add DOI to the dc:identifier field
+                     '-Identifier={}'.format(chapter_data['DOI'])]
 
         cmd = ['exiftool']
         cmd.append('-q')
