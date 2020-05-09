@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+import json
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
@@ -20,8 +21,13 @@ def run():
         path_checks(core.argv.output_folder)
         dependencies_checks()
 
+        # Retrieve ISBN
+        json_file = os.path.abspath('pdf_file.json')
+        with open(json_file) as json_data:
+            isbn = json.load(json_data)['isbn'].replace('-','')
+
         # Create object instaces
-        metadata = Metadata(core.argv.isbn)
+        metadata = Metadata(isbn)
         pdf = Pdf(core.argv.input_file, tmp_dir)
 
         # Iterate over chapters metadata

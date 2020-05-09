@@ -5,8 +5,8 @@
 ```
 docker run --rm \
   -v /path/to/local.pdf:/ebook_automation/pdf_file.pdf \
+  -v /path/to/local.json:/ebook_automation/pdf_file.json \
   -v /path/to/output:/ebook_automation/output \
-  -e ISBN=9781783748457 \
   openbookpublishers/chapter-splitter
 ```
 
@@ -25,20 +25,15 @@ The *config.ini* file takes base configuration settings.
 * *cover_page_n* and *copyright_page_n* note the page number for cover and copyright page.
 
 ### Use
-Run the script as `python3 main.py ./input_file.pdf /output/folder --isbn isbn.number`. Type `python3 main.py --help` for more info.
+Run the script as `python3 main.py ./input_file.pdf /output/folder`. Type `python3 main.py --help` for more info.
 
 Example:
 
-$ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm --isbn 9781783745593`
+$ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm`
 
 You may specify `--compress-output` to output a zip file containing all the curated (without the 'original', metadata less, files) chapter PDFs.
 
 ## Dev
-### What can be improved
-* Use CrossRef API in the metadata.py module
-* Add more metadata information to files (for a start: publication date, abstract, keywords)
-
-
 ### Git hooks
 Use `pre-commit.sh` as a pre commit git hook to build a test image that will run `flake8` to enforce PEP8 style.
 

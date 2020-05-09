@@ -31,10 +31,6 @@ class Core:
                             action='store_true',
                             help='If set it will output a single zip file')
 
-        parser.add_argument('-i', '--isbn',
-                            help='A valid ISBN of the edition',
-                            required=True)
-
         return parser.parse_args()
 
     def output_archive(self, doi_suffix):
