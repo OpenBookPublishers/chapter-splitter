@@ -1,5 +1,15 @@
 # chapter-splitter
-*chapter-splitter* is a small utility to split PDF books by chapters and write metadata into the generated files.
+*chapter-splitter* splits PDF books into individual chapters PDFs. The output files are supplied with relevant metadata.
+
+## Rationale
+There are scenarios where it is desirable to distribute book chapters individually. This utility serves exactly to this purpose, performing the task programmatically and offering the best possible output (reading ad discoverability).
+
+## What the output PDFs look like
+The software outputs the PDFs of the chapters which comes with a DOI. Chapter body text is preceded with the cover image of the book and a copyright statement.
+
+## What metadata is included
+Basic metadata include _authors_, _chapter title_, _publisher name_, _licence_ and _DOI_. Additional metadata consists of _chapter abstract_. Technical metadata
+reports _creation date_ and _production software_ ([PDFtk](https://packages.debian.org/buster/pdftk)).
 
 ## Running with docker
 ```
