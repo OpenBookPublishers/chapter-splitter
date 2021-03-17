@@ -3,6 +3,7 @@
 import os
 import tempfile
 import json
+import concurrent.futures
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
@@ -24,21 +25,29 @@ def run():
         # Retrieve ISBN
         json_file = os.path.abspath('pdf_file.json')
         with open(json_file) as json_data:
-            isbn = json.load(json_data)['isbn'].replace('-','')
+            isbn = json.load(json_data)['isbn'].replace('-', '')
 
         # Create object instaces
         metadata = Metadata(isbn)
         pdf = Pdf(core.argv.input_file, tmp_dir)
 
+        page_ranges = []
+        output_file_names = []
+
         # Iterate over chapters metadata
         for chapter_data in metadata.get_chapters_data():
-            # Produce the PDF
-            page_range = pdf.get_page_range(chapter_data['page'].split('-'))
-            output_file_name = chapter_data['DOI'].split('/')[1] + '.pdf'
+            page_ranges.append(pdf.get_page_range(chapter_data['page']
+                                                  .split('-')))
+            output_file_names.append(chapter_data['DOI'].split('/')[1]
+                                     + '.pdf')
 
-            pdf.merge_pdfs(page_range, output_file_name)
+        # Merge PDFs
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            executor.map(pdf.merge_pdfs, page_ranges, output_file_names)
 
-            # Write metadata
+        # Write metadata
+        for output_file_name, chapter_data in zip(
+                output_file_names, metadata.get_chapters_data()):
             output_file_path = os.path.join(tmp_dir, output_file_name)
             Metadata.write_metadata(chapter_data, output_file_path)
 
