@@ -35,7 +35,7 @@ def run():
         output_file_names = []
 
         # Iterate over chapters metadata
-        for chapter_data in metadata.get_chapters_data():
+        for chapter_data in metadata.chapters_data:
             page_ranges.append(pdf.get_page_range(chapter_data['page']
                                                   .split('-')))
             output_file_names.append(chapter_data['DOI'].split('/')[1]
@@ -47,7 +47,7 @@ def run():
 
         # Write metadata
         for output_file_name, chapter_data in zip(
-                output_file_names, metadata.get_chapters_data()):
+                output_file_names, metadata.chapters_data):
             output_file_path = os.path.join(tmp_dir, output_file_name)
             Metadata.write_metadata(chapter_data, output_file_path)
 

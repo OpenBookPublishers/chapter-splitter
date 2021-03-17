@@ -17,6 +17,7 @@ class Metadata:
 
         # Get book metadata
         self.book_metadata = self.get_book_metadata()
+        self.chapters_data = self.get_chapters_data()
 
     def get_book_metadata(self):
         '''
