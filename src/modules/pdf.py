@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from pdfrw import PdfReader
-from pagelabels import PageLabels
 from os import path
 from .config import Config
 import roman
@@ -20,20 +18,11 @@ class Pdf:
         self.page_one = self.get_page_one()
 
     def get_page_one(self):
-        '''
-          The PageLabel tuple looks like this:
+        original_pdf = fitz.open(self.input_file)
+        page_one = int(original_pdf.get_page_numbers('1')[0])
+        original_pdf.close()
 
-          PageLabelScheme(startpage=16,
-                          style='arabic',
-                          prefix='',
-                          firstpagenum=1)
-        '''
-        reader = PdfReader(self.input_file)
-        labels = PageLabels.from_pdf(reader)
-
-        for label in labels:
-            if label[1] == 'arabic':
-                return label[0] - 1
+        return page_one
 
     def get_page_range(self, page_range):
         """
