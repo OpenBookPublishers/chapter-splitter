@@ -2,7 +2,6 @@
 
 from os import path
 from .config import Config
-import roman
 import fitz
 
 class Pdf:
@@ -15,30 +14,6 @@ class Pdf:
         self.copyright_page_n = int(config.get_config('pdf',
                                                   'copyright_page_n'))
 
-        self.page_one = self.get_page_one()
-
-    def get_page_one(self):
-        original_pdf = fitz.open(self.input_file)
-        page_one = int(original_pdf.get_page_numbers('1')[0])
-        original_pdf.close()
-
-        return page_one
-
-    def get_page_range(self, page_range):
-        """
-        Returns a list of the effective chapter page range
-        """
-
-        # Check if the page range is numeric or roman numeral
-        if page_range[0].isnumeric() and page_range[1].isnumeric():
-            # Convert the page numbers to int object type
-            page_range = [int(page) + self.page_one for page in page_range]
-        else:
-            # Convert pages to arabic numeral
-            page_range = [roman.fromRoman(page.upper())
-                          for page in page_range]
-        return page_range
-
     def merge_pdfs(self, page_range, output_file_name):
         """
         Executes the command to merge the PDF files
@@ -46,6 +21,9 @@ class Pdf:
 
         original_pdf = fitz.open(self.input_file)
 
+        real_page_range = [original_pdf.get_page_numbers(page, only_one=True)[0]
+                           for page in page_range]
+        
         chapter_pdf = fitz.open()
         chapter_pdf.insert_pdf(original_pdf,
                                to_page = self.cover_page_n)
@@ -53,8 +31,8 @@ class Pdf:
                                from_page = self.copyright_page_n,
                                to_page = self.copyright_page_n)
         chapter_pdf.insert_pdf(original_pdf,
-                               from_page = page_range[0],
-                               to_page = page_range[1])
+                               from_page = int(real_page_range[0]),
+                               to_page = int(real_page_range[1]))
         chapter_pdf.save(path.join(self.output_folder, output_file_name))
 
         original_pdf.close()
