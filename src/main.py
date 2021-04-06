@@ -36,8 +36,7 @@ def run():
 
         # Iterate over chapters metadata
         for chapter_data in metadata.chapters_data:
-            page_ranges.append(pdf.get_page_range(chapter_data['page']
-                                                  .split('-')))
+            page_ranges.append(chapter_data['page'].split('-'))
             output_file_names.append(chapter_data['DOI'].split('/')[1]
                                      + '.pdf')
 

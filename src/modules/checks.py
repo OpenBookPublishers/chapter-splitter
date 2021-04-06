@@ -19,7 +19,7 @@ def path_checks(folder):
 
 
 def dependencies_checks():
-    dependencies = ['pdftk', 'exiftool']
+    dependencies = ['exiftool']
 
     for tool in dependencies:
         if subprocess.call(['which', tool]) != 0:
