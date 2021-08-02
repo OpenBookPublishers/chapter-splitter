@@ -21,25 +21,23 @@ class Metadata:
 
     def get_book_metadata(self):
         '''
-        Get book metadata, which include all the entries
-        associated to the supplied ISBN
-        (i.e. type: book, book-chapter)
+        Get book metadata associated to the supplied ISBN
         '''
-        return self.works.filter(isbn=self.isbn) \
-                         .select('DOI', 'license', 'author',
-                                 'title', 'type', 'page',
-                                 'publisher', 'container-title',
-                                 'abstract')
+        return self.works.filter(isbn=self.isbn).select('title')
 
     def get_chapters_data(self):
         '''
         Returns a python list of dictionaries with the book chapter data.
-
-        This task is made inexpensive by filtering the broader data set
-        contained in self.book_metadata
         '''
-        chapters_data = [item for item in self.book_metadata \
-                         if item['type'] == 'book-chapter']
+        book_data = [d for d in self.book_metadata]
+        book_title = book_data[0]['title'][0]
+
+        chapters_data = self.works.filter(container_title=book_title,
+                                          type='book-chapter') \
+                                  .select('DOI', 'license', 'author',
+                                          'title', 'type', 'page',
+                                          'publisher', 'container-title',
+                                          'abstract')
 
         # Assert that at least one DOI have been discovered
         if not chapters_data:
