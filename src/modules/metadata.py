@@ -23,7 +23,8 @@ class Metadata:
         '''
         Get book metadata associated to the supplied ISBN
         '''
-        return self.works.filter(isbn=self.isbn).select('title')
+        return self.works.filter(isbn=self.isbn).select('title', 'DOI',
+                                                        'type')
 
     def get_chapters_data(self):
         '''
