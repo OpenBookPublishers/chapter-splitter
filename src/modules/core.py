@@ -15,7 +15,7 @@ class Core:
 
     def parse_args(self, argv=None):
         '''
-        Parse input arguments with argparse. 
+        Parse input arguments with argparse.
         Return argparse object.
         '''
 
@@ -44,7 +44,7 @@ class Core:
         out_file = '{}/{}.zip'.format(self.argv.output_folder,
                                       doi_suffix)
         suffix = '_original'
-        files = filter(lambda w: not w.endswith(suffix), \
+        files = filter(lambda w: not w.endswith(suffix),
                        os.listdir(self.tmp_dir))
         with ZipFile(out_file, 'w') as zipfile:
             for file in files:
