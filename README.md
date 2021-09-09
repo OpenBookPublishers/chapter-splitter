@@ -35,11 +35,11 @@ The *config.ini* file takes base configuration settings.
 * *cover_page_n* and *copyright_page_n* note the page number for cover and copyright page.
 
 ### Use
-Run the script as `python3 main.py ./input_file.pdf /output/folder`. Type `python3 main.py --help` for more info.
+Run the script as `python3 main.py ./input_file.pdf /output/folder -m ./metadata.json`. Type `python3 main.py --help` for more info.
 
 Example:
 
-$ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm`
+$ `python3 main.py Hobbs-Provincial-Press.pdf /dev/shm -m metadata.json`
 
 You may specify `--compress-output` to output a zip file containing all the curated (without the 'original', metadata less, files) chapter PDFs.
 
