@@ -4,4 +4,4 @@ python:
 install:
   - pip install flake8==3.7.7
 script:
-  - flake8 ./src/*
+  - find . -maxdepth 3 -name ./src/\*.py -exec flake8 {} \;
