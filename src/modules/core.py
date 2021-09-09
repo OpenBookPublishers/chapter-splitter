@@ -31,6 +31,8 @@ class Core:
                             action='store_true',
                             help='If set it will output a single zip file')
 
+        parser.add_argument('-m', '--metadata', help='Metadata file path')
+
         return parser.parse_args()
 
     def output_archive(self, doi_suffix):
