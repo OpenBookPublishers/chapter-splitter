@@ -17,4 +17,5 @@ RUN rm requirements.txt
 COPY ./src/ ./
 
 CMD python main.py ./pdf_file.pdf ./output \
+                   --metadata ./pdf_file.json \
 		   --compress-output

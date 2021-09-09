@@ -19,11 +19,12 @@ def run():
 
         # Checks
         file_checks(core.argv.input_file)
+        file_checks(core.argv.metadata)
         path_checks(core.argv.output_folder)
         dependencies_checks()
 
         # Retrieve ISBN
-        json_file = os.path.abspath('pdf_file.json')
+        json_file = os.path.abspath(core.argv.metadata)
         with open(json_file) as json_data:
             isbn = json.load(json_data)['isbn'].replace('-', '')
 
