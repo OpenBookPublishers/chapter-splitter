@@ -15,7 +15,7 @@ class Core:
 
     def parse_args(self, argv=None):
         '''
-        Parse input arguments with argparse. 
+        Parse input arguments with argparse.
         Return argparse object.
         '''
 
@@ -31,6 +31,8 @@ class Core:
                             action='store_true',
                             help='If set it will output a single zip file')
 
+        parser.add_argument('-m', '--metadata', help='Metadata file path')
+
         return parser.parse_args()
 
     def output_archive(self, doi_suffix):
@@ -42,7 +44,7 @@ class Core:
         out_file = '{}/{}.zip'.format(self.argv.output_folder,
                                       doi_suffix)
         suffix = '_original'
-        files = filter(lambda w: not w.endswith(suffix), \
+        files = filter(lambda w: not w.endswith(suffix),
                        os.listdir(self.tmp_dir))
         with ZipFile(out_file, 'w') as zipfile:
             for file in files:

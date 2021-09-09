@@ -54,8 +54,8 @@ class Metadata:
 
         book_types = ['monograph', 'edited-book', 'book']
 
-        book_doi = [item['DOI'] \
-                    for item in self.book_metadata \
+        book_doi = [item['DOI']
+                    for item in self.book_metadata
                     if item['type'] in book_types]
 
         if not book_doi:
@@ -84,7 +84,7 @@ class Metadata:
 
         arguments = ['-Title={}'.format(chapter_data['title'][0]),
 
-                     '-Author={}'.format(Metadata \
+                     '-Author={}'.format(Metadata
                                          .join_author_names(chapter_data)),
 
                      # Add publisher to the dc:publisher field
