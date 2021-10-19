@@ -39,11 +39,9 @@ def run():
             # Merge PDFs
             pdf.merge_pdfs(page_range, output_file_name)
 
-        # Write metadata
-        #for output_file_name, chapter_data in zip(
-        #        output_file_names, metadata.chapters_data):
-        #    output_file_path = os.path.join(tmp_dir, output_file_name)
-        #    Metadata.write_metadata(chapter_data, output_file_path)
+            # Write metadata
+            output_file_path = os.path.join(tmp_dir, output_file_name)
+            metadata.write_metadata(chapter_data, output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
         if core.argv.compress:
