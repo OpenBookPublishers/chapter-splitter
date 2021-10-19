@@ -3,7 +3,6 @@
 import os
 import tempfile
 import json
-import concurrent.futures
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
@@ -32,24 +31,17 @@ def run():
         metadata = Metadata(isbn)
         pdf = Pdf(core.argv.input_file, tmp_dir)
 
-        page_ranges = []
-        output_file_names = []
-
         # Iterate over chapters metadata
         for chapter_data in metadata.chapters_data:
-            page_ranges.append(chapter_data['page'].split('-'))
-            output_file_names.append(chapter_data['DOI'].split('/')[1]
-                                     + '.pdf')
+            page_range = chapter_data['page'].split('-')
+            output_file_name = chapter_data['DOI'].split('/')[1] + '.pdf'
 
-        # Merge PDFs
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            executor.map(pdf.merge_pdfs, page_ranges, output_file_names)
+            # Merge PDFs
+            pdf.merge_pdfs(page_range, output_file_name)
 
-        # Write metadata
-        for output_file_name, chapter_data in zip(
-                output_file_names, metadata.chapters_data):
+            # Write metadata
             output_file_path = os.path.join(tmp_dir, output_file_name)
-            Metadata.write_metadata(chapter_data, output_file_path)
+            metadata.write_metadata(chapter_data, output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
         if core.argv.compress:
