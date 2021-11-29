@@ -3,6 +3,7 @@
 from os import path
 from .config import Config
 import fitz
+from roman import fromRoman
 
 
 class Pdf:
@@ -37,6 +38,23 @@ class Pdf:
         chapter_pdf.insert_pdf(original_pdf,
                                from_page=int(real_page_range[0]),
                                to_page=int(real_page_range[1]))
+
+        # Update page labels
+        if page_range[0].isnumeric():
+            chapter_page = int(page_range[0])
+            chapter_style = 'D'
+        else:
+            chapter_page = fromRoman(page_range[0].upper())
+            chapter_style = 'r'
+            
+        labels = [{'startpage': 0, 'style': 'A',
+                   'firstpagenum': int(self.cover_page_n)},
+                  {'startpage': 1, 'style': 'r',
+                   'firstpagenum': int(self.copyright_page_n)},
+                  {'startpage': 2, 'style': chapter_style,
+                   'firstpagenum': chapter_page}]
+
+        chapter_pdf.set_page_labels(labels)
 
         chapter_pdf.save(path.join(self.output_folder, output_file_name))
 
