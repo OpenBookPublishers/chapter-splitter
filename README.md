@@ -12,7 +12,7 @@ Basic metadata include _authors_, _chapter title_, _publisher name_, _licence_ a
 reports _creation date_ and _production software_ ([PDFtk](https://packages.debian.org/buster/pdftk)).
 
 ## Running with docker
-If required, specify cover and copyright page numbers (zero based) in the Dockerfile as env variables.
+If required, specify cover and copyright page numbers (zero based) in the Dockerfile (or override it in your `docker run [...]` command) as env variables.
 
 ```
 docker run --rm \
