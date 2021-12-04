@@ -2,16 +2,18 @@
 *chapter-splitter* splits PDF books into individual chapters PDFs. The output files are supplied with relevant metadata.
 
 ## Rationale
-There are scenarios where it is desirable to distribute book chapters individually. This utility serves exactly to this purpose, performing the task programmatically and offering the best possible output (reading ad discoverability).
+There are scenarios where it is desirable to distribute book chapters individually. This utility serves exactly to this purpose, performing the task programmatically and offering the best possible output (reading and discoverability).
 
 ## What the output PDFs look like
-The software outputs the PDFs of the chapters which comes with a DOI. Chapter body text is preceded with the cover image of the book and a copyright statement.
+The software outputs the PDFs of the chapters which comes with a DOI. Chapter body text might be preceded (if pages are specified as env variables) with the cover image of the book and a copyright statement.
 
 ## What metadata is included
 Basic metadata include _authors_, _chapter title_, _publisher name_, _licence_ and _DOI_. Additional metadata consists of _chapter abstract_. Technical metadata
 reports _creation date_ and _production software_ ([PDFtk](https://packages.debian.org/buster/pdftk)).
 
 ## Running with docker
+If required, specify cover and copyright page numbers (zero based) in the Dockerfile (or override it in your `docker run [...]` command) as env variables.
+
 ```
 docker run --rm \
   -v /path/to/local.pdf:/ebook_automation/pdf_file.pdf \
@@ -30,9 +32,7 @@ Run `apt-get install pdftk exiftool`.
 Besides python standard libraries, *chapter-splitter* requires some extra-libraries noted in `requirements.txt`. To install them (within a virtual environment, if you prefer), run `pip3.5 install requirements.txt`.
 
 #### Configuration
-The *config.ini* file takes base configuration settings.
-* *api_url* is the base URL of the API where to gather DOI metadata.
-* *cover_page_n* and *copyright_page_n* note the page number for cover and copyright page.
+If required, define cover and copyright page numbers (zero based) as env variables: $COVER_PAGE and $COPYRIGHT_PAGE.
 
 ### Use
 Run the script as `python3 main.py ./input_file.pdf /output/folder -m ./metadata.json`. Type `python3 main.py --help` for more info.
