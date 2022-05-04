@@ -52,7 +52,7 @@ class Pdf:
         else:
             chapter_page = fromRoman(page_range[0].upper())
             chapter_style = 'r'
-            
+
         labels.append({'startpage': 2, 'style': chapter_style,
                        'firstpagenum': chapter_page})
 
