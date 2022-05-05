@@ -4,30 +4,27 @@ import os
 import tempfile
 import json
 import typer
+from pathlib import Path
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
-from modules.checks import path_checks, file_checks, dependencies_checks
 
 app = typer.Typer()
 
 
 @app.command()
-def run(input_file: str,
-        output_folder: str,
-        metadata: str,
-        compress: bool = True):
-    # Destruction of the temporary directory on completion
+def run(input_file:    Path = typer.Option("./file.pdf",
+                                           exists=True, resolve_path=True),
+        output_folder: Path = typer.Option("./output/",
+                                           exists=True, resolve_path=True),
+        metadata:      Path = typer.Option("./metadata.json",
+                                           exists=True, resolve_path=True),
+        compress:      bool = True):
+
     with tempfile.TemporaryDirectory() as tmp_dir:
 
         # Create core object instace
         core = Core(tmp_dir, output_folder)
-
-        # Checks
-        file_checks(input_file)
-        file_checks(metadata)
-        path_checks(output_folder)
-        dependencies_checks()
 
         # Retrieve ISBN
         json_file = os.path.abspath(metadata)
