@@ -8,6 +8,7 @@ from pathlib import Path
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
+from api import Book
 
 app = typer.Typer()
 
@@ -17,8 +18,8 @@ def run(input_file:    Path = typer.Option("./file.pdf",
                                            exists=True, resolve_path=True),
         output_folder: Path = typer.Option("./output/",
                                            exists=True, resolve_path=True),
-        metadata:      Path = typer.Option("./metadata.json",
-                                           exists=True, resolve_path=True),
+        metadata: typer.FileText = typer.Option("./metadata.json",
+                                                exists=True),
         compress:      bool = True):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -26,13 +27,10 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         # Create core object instace
         core = Core(tmp_dir, output_folder)
 
-        # Retrieve ISBN
-        json_file = os.path.abspath(metadata)
-        with open(json_file) as json_data:
-            isbn = json.load(json_data)['isbn'].replace('-', '')
+        book = Book.from_dict(json.load(metadata))
 
         # Create object instaces
-        metadata = Metadata(isbn)
+        metadata = Metadata(book.isbn.replace('-', ''))
         pdf = Pdf(input_file, tmp_dir)
 
         # Iterate over chapters metadata
