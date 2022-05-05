@@ -27,7 +27,11 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         # Create core object instace
         core = Core(tmp_dir, output_folder)
 
-        book = Book.from_dict(json.load(metadata))
+        metadata_json = json.load(metadata)
+        isbn = metadata_json.get("isbn")
+        doi = metadata_json.get("doi")
+
+        book = Book(isbn, doi)
 
         # Create object instaces
         metadata = Metadata(book.isbn.replace('-', ''))
