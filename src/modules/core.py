@@ -1,39 +1,14 @@
 #!/usr/bin/env python3
 
-import argparse
 import os
 import shutil
 from zipfile import ZipFile
 
 
 class Core:
-    def __init__(self, tmp_dir):
+    def __init__(self, tmp_dir, output_folder):
         self.tmp_dir = tmp_dir
-
-        # Parse arguments
-        self.argv = self.parse_args()
-
-    def parse_args(self, argv=None):
-        '''
-        Parse input arguments with argparse.
-        Return argparse object.
-        '''
-
-        parser = argparse.ArgumentParser(description='chapter-splitter')
-
-        parser.add_argument('input_file',
-                            help='PDF file to elaborate')
-
-        parser.add_argument('output_folder',
-                            help='Output folder where to store the new PDFs')
-
-        parser.add_argument('-c', '--compress-output', dest='compress',
-                            action='store_true',
-                            help='If set it will output a single zip file')
-
-        parser.add_argument('-m', '--metadata', help='Metadata file path')
-
-        return parser.parse_args()
+        self.output_folder = output_folder
 
     def output_archive(self, doi_suffix):
         '''
@@ -41,7 +16,7 @@ class Core:
 
         The archive name looks like this: obp.0197.zip
         '''
-        out_file = '{}/{}.zip'.format(self.argv.output_folder,
+        out_file = '{}/{}.zip'.format(self.output_folder,
                                       doi_suffix)
         suffix = '_original'
         files = filter(lambda w: not w.endswith(suffix),
@@ -60,4 +35,4 @@ class Core:
             if basename.endswith('.pdf'):
                 pathname = os.path.join(self.tmp_dir, basename)
                 if os.path.isfile(pathname):
-                    shutil.copy2(pathname, self.argv.output_folder)
+                    shutil.copy2(pathname, self.output_folder)

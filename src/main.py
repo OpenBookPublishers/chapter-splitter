@@ -3,33 +3,40 @@
 import os
 import tempfile
 import json
+import typer
 from modules.core import Core
 from modules.pdf import Pdf
 from modules.metadata import Metadata
 from modules.checks import path_checks, file_checks, dependencies_checks
 
+app = typer.Typer()
 
-def run():
+
+@app.command()
+def run(input_file: str,
+        output_folder: str,
+        metadata: str,
+        compress: bool = True):
     # Destruction of the temporary directory on completion
     with tempfile.TemporaryDirectory() as tmp_dir:
 
         # Create core object instace
-        core = Core(tmp_dir)
+        core = Core(tmp_dir, output_folder)
 
         # Checks
-        file_checks(core.argv.input_file)
-        file_checks(core.argv.metadata)
-        path_checks(core.argv.output_folder)
+        file_checks(input_file)
+        file_checks(metadata)
+        path_checks(output_folder)
         dependencies_checks()
 
         # Retrieve ISBN
-        json_file = os.path.abspath(core.argv.metadata)
+        json_file = os.path.abspath(metadata)
         with open(json_file) as json_data:
             isbn = json.load(json_data)['isbn'].replace('-', '')
 
         # Create object instaces
         metadata = Metadata(isbn)
-        pdf = Pdf(core.argv.input_file, tmp_dir)
+        pdf = Pdf(input_file, tmp_dir)
 
         # Iterate over chapters metadata
         for chapter_data in metadata.chapters_data:
@@ -44,7 +51,7 @@ def run():
             metadata.write_metadata(chapter_data, output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
-        if core.argv.compress:
+        if compress:
             # Output a zip archive
             core.output_archive(metadata.get_doi_suffix())
         else:
@@ -53,4 +60,4 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    typer.run(run)

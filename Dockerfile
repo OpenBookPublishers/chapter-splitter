@@ -19,5 +19,4 @@ COPY ./src/ ./
 ENV COVER_PAGE=0
 ENV COPYRIGHT_PAGE=4
 
-CMD python main.py ./pdf_file.pdf ./output \
-                   --metadata ./pdf_file.json
+CMD python main.py ./pdf_file.pdf ./output ./pdf_file.json
