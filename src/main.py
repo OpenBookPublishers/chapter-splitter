@@ -32,6 +32,7 @@ def run(input_file:    Path = typer.Option("./file.pdf",
 
         metadata = Metadata()
         book = metadata.get_book(isbn)
+        chapters = metadata.get_chapters(book)
 
         # Create object instaces
         pdf = Pdf(input_file, tmp_dir)

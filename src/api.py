@@ -62,26 +62,36 @@ class Metadata:
                 "isbn" : isbn}
         return Book(**data)
 
-    def get_chapters_data(self):
+    def get_chapters(self, book):
         '''
-        Returns a python list of dictionaries with the book chapter data.
+        Returns a python list of chapter dataclasses.
         '''
-        book_data = [d for d in self.book_metadata]
-        book_title = book_data[0]['title'][0]
-
-        chapters_data = self.works.filter(container_title=book_title,
-                                          type='book-chapter') \
+        query = self.works.filter(container_title=book.title,
+                                  type='book-chapter') \
                                   .select('DOI', 'license', 'author',
                                           'title', 'type', 'page',
                                           'publisher', 'container-title',
                                           'abstract')
 
         # Assert that at least one DOI have been discovered
-        if not chapters_data:
+        if not query:
             raise AssertionError('Couldn\'t find any chapter-level DOIs'
                                  + ' for the supplied --isbn value')
 
-        return chapters_data
+        chapters = []
+
+        for chapter in query:
+            data = {"doi"       : chapter.get("DOI"),
+                    "author"    : Metadata.join_author_names(chapter),
+                    "title"     : chapter.get("title")[0],
+                    "publisher" : chapter.get("publisher"),
+                    "abstract"  : chapter.get("abstract", ""),
+                    "pages"     : chapter.get("page"),
+                    "licence"   : Metadata.get_rights(chapter)}
+
+            chapters.append(Chapter(**data))
+
+        return chapters
 
     def get_doi_suffix(self):
         '''
