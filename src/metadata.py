@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from dataclasses import dataclass
+from dataclasses import asdict
 
 from os import path
 from datetime import datetime
@@ -6,46 +8,90 @@ from subprocess import run
 from crossref.restful import Works
 
 
+
+@dataclass
+class Book:
+    isbn: str = None
+    doi: str = None
+    title: str = None
+    type: str = None
+
+    @classmethod
+    def from_dict(cls, d):
+        return Book(**d)
+
+
+@dataclass
+class Chapter:
+    author: str = None
+    title: str = None
+    abstract: str = None
+    pages: list[int] = None
+    doi: str = None
+    licence: str = None
+    container_title: str = None
+    publisher: str = None
+
+    @classmethod
+    def from_dict(cls, d):
+        return Chapter(**d)
+
+    @classmethod
+    def to_dict(self):
+        return asdict(self)
+
+
 class Metadata:
     '''
     This class retrieve and organise book and chapters metadata
     associated to the user given ISBN.
     '''
-    def __init__(self, isbn):
+    def __init__(self):
         self.works = Works()
-        self.isbn = isbn
 
-        # Get book metadata
-        self.book_metadata = self.get_book_metadata()
-        self.chapters_data = self.get_chapters_data()
+    def get_book(self, isbn):
+        '''
+        Return the book (dataclass) object associated to the supplied ISBN
+        '''
+        query = self.works.filter(isbn=isbn.replace('-', '')) \
+                          .select('title', 'DOI', 'type')
+        result = [x for x in query]
+        data = {"title": result[0].get("title")[0],
+                "doi"  : result[0].get("DOI"),
+                "type" : result[0].get("type"),
+                "isbn" : isbn}
+        return Book(**data)
 
-    def get_book_metadata(self):
+    def get_chapters(self, book):
         '''
-        Get book metadata associated to the supplied ISBN
+        Returns a python list of chapter dataclasses.
         '''
-        return self.works.filter(isbn=self.isbn).select('title', 'DOI',
-                                                        'type')
-
-    def get_chapters_data(self):
-        '''
-        Returns a python list of dictionaries with the book chapter data.
-        '''
-        book_data = [d for d in self.book_metadata]
-        book_title = book_data[0]['title'][0]
-
-        chapters_data = self.works.filter(container_title=book_title,
-                                          type='book-chapter') \
+        query = self.works.filter(container_title=book.title,
+                                  type='book-chapter') \
                                   .select('DOI', 'license', 'author',
                                           'title', 'type', 'page',
                                           'publisher', 'container-title',
                                           'abstract')
 
         # Assert that at least one DOI have been discovered
-        if not chapters_data:
+        if not query:
             raise AssertionError('Couldn\'t find any chapter-level DOIs'
                                  + ' for the supplied --isbn value')
 
-        return chapters_data
+        chapters = []
+
+        for chapter in query:
+            data = {"doi"       : chapter.get("DOI"),
+                    "author"    : Metadata.join_author_names(chapter),
+                    "title"     : chapter.get("title")[0],
+                    "publisher" : chapter.get("publisher"),
+                    "abstract"  : chapter.get("abstract", ""),
+                    "pages"     : chapter.get("page"),
+                    "licence"   : Metadata.get_rights(chapter)}
+
+            chapters.append(Chapter(**data))
+
+        return chapters
 
     def get_doi_suffix(self):
         '''
@@ -77,41 +123,21 @@ class Metadata:
         return name
 
     @staticmethod
-    def write_metadata(chapter_data, output_file_path):
+    def write_metadata(chapter, output_file_path):
         """
         Writes metadata to file_name
         """
 
-        arguments = ['-Title={}'.format(chapter_data['title'][0]),
-
-                     '-Author={}'.format(Metadata
-                                         .join_author_names(chapter_data)),
-
-                     # Add publisher to the dc:publisher field
-                     '-Publisher={}'.format(chapter_data['publisher']),
-
-                     '-ModDate={}'.format(datetime.now()
-                                          .strftime("%Y:%m:%d %T")),
-
-                     # Add Abstract in the dc:description field
-                     '-Description={}'.format(chapter_data \
-                                              .get('abstract', '')),
-
-                     # Add a copyright notice in the dc:rights field
-                     '-Copyright={}'.format(Metadata.get_rights(chapter_data)),
-
-                     # Add DOI to the dc:identifier field
-                     '-Identifier={}'.format(chapter_data['DOI']),
-
-                     # Add format to the dc:format field
-                     '-Format={}'.format('application/pdf'),
-
-                     # Add date to the dc:date field
-                     '-Date={}'.format(datetime.now()
-                                       .strftime("%Y:%m:%d")),
-
-                     # Add language to the dc:language field
-                     '-Language={}'.format('en')]
+        arguments = [f"-Title={chapter.title}",
+                     f"-Author={chapter.author}",
+                     f"-Publisher={chapter.publisher}",
+                     f"-ModDate={datetime.now().strftime('%Y:%m:%d %T')}",
+                     f"-Description={chapter.abstract}",
+                     f"-Copyright={chapter.licence}"
+                     f"-Identifier={chapter.doi}",
+                      "-Format=application/pdf",
+                     f"-Date={datetime.now().strftime('%Y:%m:%d')}",
+                      "-Language=en"]
 
         cmd = ['exiftool']
         cmd.append('-q')
