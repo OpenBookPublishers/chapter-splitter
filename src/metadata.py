@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
-from dataclasses import asdict
+from dataclasses import dataclass, asdict, field
+from typing import List
 
 from os import path
 from datetime import datetime
@@ -26,10 +26,9 @@ class Chapter:
     author: str = None
     title: str = None
     abstract: str = None
-    pages: list[int] = None
+    pages: List[int] = field(default_factory=list)
     doi: str = None
     licence: str = None
-    container_title: str = None
     publisher: str = None
 
     @classmethod
@@ -69,8 +68,7 @@ class Metadata:
                                   type='book-chapter') \
                                   .select('DOI', 'license', 'author',
                                           'title', 'type', 'page',
-                                          'publisher', 'container-title',
-                                          'abstract')
+                                          'publisher', 'abstract')
 
         # Assert that at least one DOI have been discovered
         if not query:
