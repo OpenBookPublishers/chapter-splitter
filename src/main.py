@@ -7,7 +7,7 @@ import typer
 from pathlib import Path
 from modules.core import Core
 from modules.pdf import Pdf
-from api import Book, Metadata
+from api import Metadata
 
 app = typer.Typer()
 
@@ -30,10 +30,10 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         isbn = metadata_json.get("isbn")
         doi = metadata_json.get("doi")
 
-        book = Book(isbn, doi)
+        metadata = Metadata()
+        book = metadata.get_book(isbn)
 
         # Create object instaces
-        metadata = Metadata(book.isbn.replace('-', ''))
         pdf = Pdf(input_file, tmp_dir)
 
         # Iterate over chapters metadata

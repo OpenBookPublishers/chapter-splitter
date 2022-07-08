@@ -13,7 +13,8 @@ from crossref.restful import Works
 class Book:
     isbn: str = None
     doi: str = None
-    chapters: list = None
+    title: str = None
+    type: str = None
 
     @classmethod
     def from_dict(cls, d):
@@ -45,20 +46,21 @@ class Metadata:
     This class retrieve and organise book and chapters metadata
     associated to the user given ISBN.
     '''
-    def __init__(self, isbn):
+    def __init__(self):
         self.works = Works()
-        self.isbn = isbn
 
-        # Get book metadata
-        self.book_metadata = self.get_book_metadata()
-        self.chapters_data = self.get_chapters_data()
-
-    def get_book_metadata(self):
+    def get_book(self, isbn):
         '''
-        Get book metadata associated to the supplied ISBN
+        Return the book (dataclass) object associated to the supplied ISBN
         '''
-        return self.works.filter(isbn=self.isbn).select('title', 'DOI',
-                                                        'type')
+        query = self.works.filter(isbn=isbn.replace('-', '')) \
+                          .select('title', 'DOI', 'type')
+        result = [x for x in query]
+        data = {"title": result[0].get("title")[0],
+                "doi"  : result[0].get("DOI"),
+                "type" : result[0].get("type"),
+                "isbn" : isbn}
+        return Book(**data)
 
     def get_chapters_data(self):
         '''
