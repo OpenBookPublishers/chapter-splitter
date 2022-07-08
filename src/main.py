@@ -38,16 +38,16 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         pdf = Pdf(input_file, tmp_dir)
 
         # Iterate over chapters metadata
-        for chapter_data in metadata.chapters_data:
-            page_range = chapter_data['page'].split('-')
-            output_file_name = chapter_data['DOI'].split('/')[1] + '.pdf'
+        for chapter in chapters:
+            page_range = chapter.pages.split('-')
+            output_file_name = chapter.doi.split('/')[1] + '.pdf'
 
             # Merge PDFs
             pdf.merge_pdfs(page_range, output_file_name)
 
             # Write metadata
             output_file_path = os.path.join(tmp_dir, output_file_name)
-            metadata.write_metadata(chapter_data, output_file_path)
+            metadata.write_metadata(chapter, output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
         if compress:

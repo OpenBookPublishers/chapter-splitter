@@ -123,41 +123,21 @@ class Metadata:
         return name
 
     @staticmethod
-    def write_metadata(chapter_data, output_file_path):
+    def write_metadata(chapter, output_file_path):
         """
         Writes metadata to file_name
         """
 
-        arguments = ['-Title={}'.format(chapter_data['title'][0]),
-
-                     '-Author={}'.format(Metadata
-                                         .join_author_names(chapter_data)),
-
-                     # Add publisher to the dc:publisher field
-                     '-Publisher={}'.format(chapter_data['publisher']),
-
-                     '-ModDate={}'.format(datetime.now()
-                                          .strftime("%Y:%m:%d %T")),
-
-                     # Add Abstract in the dc:description field
-                     '-Description={}'.format(chapter_data \
-                                              .get('abstract', '')),
-
-                     # Add a copyright notice in the dc:rights field
-                     '-Copyright={}'.format(Metadata.get_rights(chapter_data)),
-
-                     # Add DOI to the dc:identifier field
-                     '-Identifier={}'.format(chapter_data['DOI']),
-
-                     # Add format to the dc:format field
-                     '-Format={}'.format('application/pdf'),
-
-                     # Add date to the dc:date field
-                     '-Date={}'.format(datetime.now()
-                                       .strftime("%Y:%m:%d")),
-
-                     # Add language to the dc:language field
-                     '-Language={}'.format('en')]
+        arguments = [f"-Title={chapter.title}",
+                     f"-Author={chapter.author}",
+                     f"-Publisher={chapter.publisher}",
+                     f"-ModDate={datetime.now().strftime('%Y:%m:%d %T')}",
+                     f"-Description={chapter.abstract}",
+                     f"-Copyright={chapter.licence}"
+                     f"-Identifier={chapter.doi}",
+                      "-Format=application/pdf",
+                     f"-Date={datetime.now().strftime('%Y:%m:%d')}",
+                      "-Language=en"]
 
         cmd = ['exiftool']
         cmd.append('-q')
