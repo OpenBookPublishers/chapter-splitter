@@ -127,6 +127,7 @@ class Metadata:
         """
         Writes metadata to file_name
         """
+        exiftool_ver = run(["exiftool", "-ver"], capture_output=True, text=True)
 
         arguments = [f"-Title={chapter.title}",
                      f"-Author={chapter.author}",
@@ -136,8 +137,10 @@ class Metadata:
                      f"-Copyright={chapter.licence}"
                      f"-Identifier={chapter.doi}",
                       "-Format=application/pdf",
+                     f"-CreationDate='{datetime.now().strftime('%Y:%m:%d')}'",
                      f"-Date={datetime.now().strftime('%Y:%m:%d')}",
-                      "-Language=en"]
+                     f"-Producer=ExifTool {exiftool_ver.stdout.strip()}",
+                      "-Creator=chapter-splitter"]
 
         cmd = ['exiftool']
         cmd.append('-q')
