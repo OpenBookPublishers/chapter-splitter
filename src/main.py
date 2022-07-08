@@ -7,8 +7,7 @@ import typer
 from pathlib import Path
 from modules.core import Core
 from modules.pdf import Pdf
-from modules.metadata import Metadata
-from api import Book
+from api import Book, Metadata
 
 app = typer.Typer()
 
