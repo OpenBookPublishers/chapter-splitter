@@ -36,7 +36,6 @@ class Chapter:
     def from_dict(cls, d):
         return Chapter(**d)
 
-    @classmethod
     def to_dict(self):
         return asdict(self)
 
@@ -60,7 +59,7 @@ class Metadata:
                 "doi"  : result[0].get("DOI"),
                 "type" : result[0].get("type"),
                 "isbn" : isbn}
-        return Book(**data)
+        return Book.from_dict(data)
 
     def get_chapters(self, book):
         '''
@@ -85,11 +84,11 @@ class Metadata:
                     "author"    : Metadata.join_author_names(chapter),
                     "title"     : chapter.get("title")[0],
                     "publisher" : chapter.get("publisher"),
-                    "abstract"  : chapter.get("abstract", ""),
+                    "abstract"  : chapter.get("abstract"),
                     "pages"     : chapter.get("page"),
                     "licence"   : Metadata.get_rights(chapter)}
 
-            chapters.append(Chapter(**data))
+            chapters.append(Chapter.from_dict(data))
 
         return chapters
 
@@ -123,19 +122,19 @@ class Metadata:
         return name
 
     @staticmethod
-    def write_metadata(chapter, output_file_path):
+    def write_metadata(chapter_dict, output_file_path):
         """
         Writes metadata to file_name
         """
         exiftool_ver = run(["exiftool", "-ver"], capture_output=True, text=True)
 
-        arguments = [f"-Title={chapter.title}",
-                     f"-Author={chapter.author}",
-                     f"-Publisher={chapter.publisher}",
+        arguments = [f"-Title={chapter_dict.get('title')}",
+                     f"-Author={chapter_dict.get('author')}",
+                     f"-Publisher={chapter_dict.get('publisher')}",
                      f"-ModDate={datetime.now().strftime('%Y:%m:%d %T')}",
-                     f"-Description={chapter.abstract}",
-                     f"-Copyright={chapter.licence}"
-                     f"-Identifier={chapter.doi}",
+                     f"-Description={chapter_dict.get('abstract', '')}",
+                     f"-Copyright={chapter_dict.get('licence')}"
+                     f"-Identifier={chapter_dict.get('doi')}",
                       "-Format=application/pdf",
                      f"-CreationDate='{datetime.now().strftime('%Y:%m:%d')}'",
                      f"-Date={datetime.now().strftime('%Y:%m:%d')}",

@@ -7,7 +7,7 @@ import typer
 from pathlib import Path
 from modules.core import Core
 from pdf import Pdf
-from metadata import Metadata
+from metadata import Metadata, Chapter
 
 app = typer.Typer()
 
@@ -47,7 +47,7 @@ def run(input_file:    Path = typer.Option("./file.pdf",
 
             # Write metadata
             output_file_path = os.path.join(tmp_dir, output_file_name)
-            metadata.write_metadata(chapter, output_file_path)
+            metadata.write_metadata(chapter.to_dict(), output_file_path)
 
         # PDFs are temporarely stored in tmp_dir
         if compress:
