@@ -6,8 +6,8 @@ import json
 import typer
 from pathlib import Path
 from modules.core import Core
-from modules.pdf import Pdf
-from api import Metadata
+from pdf import Pdf
+from metadata import Metadata
 
 app = typer.Typer()
 
