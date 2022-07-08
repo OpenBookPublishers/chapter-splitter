@@ -109,19 +109,6 @@ class Metadata:
         return book_doi[0].split('/')[1]
 
     @staticmethod
-    def get_author_name(data, position):
-        """
-        Returns author name (if specified for the given position)
-        """
-
-        name = ''
-        if len(data['author']) > position:
-            name = '{} {}'\
-                   .format(data['author'][position]['given'],
-                           data['author'][position]['family'])
-        return name
-
-    @staticmethod
     def write_metadata(chapter_dict, output_file_path):
         """
         Writes metadata to file_name
@@ -171,10 +158,11 @@ class Metadata:
         """
         Returns a string with author names, separated by semicolon
         """
-        # Make a list with author names, i.e. ['Jhon Doe', '']
-        authors = [Metadata.get_author_name(chapter_data, 0),
-                   Metadata.get_author_name(chapter_data, 1),
-                   Metadata.get_author_name(chapter_data, 2)]
+        author_list = []
 
-        # Return a string with the names, filtering empty fields
-        return '; '.join(filter(None, authors))
+        for author in chapter_data.get("author"):
+            # do not assume we know author's first name
+            full_name = [author.get("given", ""), author.get("family", "")]
+            author_list.append(" ".join(full_name).strip())
+
+        return '; '.join(author_list)
