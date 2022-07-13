@@ -6,7 +6,7 @@ from os import path
 from datetime import datetime
 from subprocess import run
 
-from db import Crossref
+from db import Crossref, Thoth
 
 
 @dataclass
@@ -19,6 +19,9 @@ class Book:
     @classmethod
     def from_dict(cls, d):
         return Book(**d)
+
+    def to_dict(self):
+        return asdict(self)
 
 
 @dataclass
@@ -44,7 +47,9 @@ class Metadata:
     This class retrieve and organise book and chapters metadata
     associated to the user given ISBN.
     '''
-    def __init__(self, database="crossref"):
+    def __init__(self, database="thoth", isbn=None, doi=None):
+        if database == "thoth":
+            self.db = Thoth(doi)
         if database == "crossref":
             self.db = Crossref()
 

@@ -7,7 +7,7 @@ import typer
 from pathlib import Path
 from modules.core import Core
 from pdf import Pdf
-from metadata import Metadata, Chapter
+from metadata import Metadata
 
 app = typer.Typer()
 
@@ -19,6 +19,7 @@ def run(input_file:    Path = typer.Option("./file.pdf",
                                            exists=True, resolve_path=True),
         metadata: typer.FileText = typer.Option("./metadata.json",
                                                 exists=True),
+        database:       str = "thoth",
         compress:      bool = True):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
@@ -30,9 +31,9 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         isbn = metadata_json.get("isbn")
         doi = metadata_json.get("doi")
 
-        metadata = Metadata()
+        metadata = Metadata(database, isbn=isbn, doi=doi)
         book = metadata.get_book(isbn)
-        chapters = metadata.get_chapters(book)
+        chapters = metadata.get_chapters(book.to_dict())
 
         # Create object instaces
         pdf = Pdf(input_file, tmp_dir)
@@ -40,7 +41,7 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         # Iterate over chapters metadata
         for chapter in chapters:
             page_range = chapter.pages.split('-')
-            output_file_name = chapter.doi.split('/')[1] + '.pdf'
+            output_file_name = chapter.doi.split('/')[-1] + '.pdf'
 
             # Merge PDFs
             pdf.merge_pdfs(page_range, output_file_name)

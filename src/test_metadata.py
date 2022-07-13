@@ -44,6 +44,14 @@ def test_book_from_dict():
     assert book.type == dict.get("type")
 
 
+def test_book_to_dict():
+    book = Book("978-1-80064-779-4", "10.11647/OBP.0309",
+                "The Merger Mystery", "monograph")
+    dict = {"isbn": "978-1-80064-779-4", "doi": "10.11647/OBP.0309",
+            "title": "The Merger Mystery", "type": "monograph"}
+    assert book.to_dict() == dict
+
+
 def test_chapter_access():
     chapter = Chapter("Brian Rappert",
                       "Preface: Attention, Attention, Attention!",
