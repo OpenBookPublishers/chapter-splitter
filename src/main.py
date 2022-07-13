@@ -2,7 +2,6 @@
 
 import os
 import tempfile
-import json
 import typer
 from pathlib import Path
 from modules.core import Core
@@ -17,8 +16,7 @@ def run(input_file:    Path = typer.Option("./file.pdf",
                                            exists=True, resolve_path=True),
         output_folder: Path = typer.Option("./output/",
                                            exists=True, resolve_path=True),
-        metadata: typer.FileText = typer.Option("./metadata.json",
-                                                exists=True),
+        doi:            str = typer.Argument(...),
         database:       str = "thoth",
         compress:      bool = True):
 
@@ -26,9 +24,6 @@ def run(input_file:    Path = typer.Option("./file.pdf",
 
         # Create core object instace
         core = Core(tmp_dir, output_folder)
-
-        metadata_json = json.load(metadata)
-        doi = metadata_json.get("doi")
 
         metadata = Metadata(database, doi=doi)
 

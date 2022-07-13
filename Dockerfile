@@ -19,5 +19,5 @@ COPY ./src/ ./
 ENV COVER_PAGE=0
 ENV COPYRIGHT_PAGE=4
 
-CMD python main.py --input-file ./pdf_file.pdf --output-folder ./output \
-                   --metadata ./pdf_file.json --no-compress
+ENTRYPOINT ["python3"]
+CMD ["./main.py", "--help"]
