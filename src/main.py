@@ -4,9 +4,9 @@ import os
 import tempfile
 import typer
 from pathlib import Path
-from modules.core import Core
 from pdf import Pdf
 from metadata import Metadata
+from shutil import copy2
 
 app = typer.Typer()
 
@@ -17,13 +17,9 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         output_folder: Path = typer.Option("./output/",
                                            exists=True, resolve_path=True),
         doi:            str = typer.Argument(...),
-        database:       str = "thoth",
-        compress:      bool = True):
+        database:       str = "thoth"):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-
-        # Create core object instace
-        core = Core(tmp_dir, output_folder)
 
         metadata = Metadata(database, doi=doi)
 
@@ -42,13 +38,8 @@ def run(input_file:    Path = typer.Option("./file.pdf",
             output_file_path = os.path.join(tmp_dir, output_file_name)
             metadata.write_metadata(chapter, output_file_path)
 
-        # PDFs are temporarely stored in tmp_dir
-        if compress:
-            # Output a zip archive
-            core.output_archive(metadata.get_doi_suffix())
-        else:
-            # Output loose PDFs
-            core.output_pdfs()
+            # copy file to output dir
+            copy2(output_file_path, output_folder)
 
 
 if __name__ == '__main__':
