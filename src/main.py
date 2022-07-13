@@ -28,10 +28,9 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         core = Core(tmp_dir, output_folder)
 
         metadata_json = json.load(metadata)
-        isbn = metadata_json.get("isbn")
         doi = metadata_json.get("doi")
 
-        metadata = Metadata(database, isbn=isbn, doi=doi)
+        metadata = Metadata(database, doi=doi)
 
         # Create object instaces
         pdf = Pdf(input_file, tmp_dir)

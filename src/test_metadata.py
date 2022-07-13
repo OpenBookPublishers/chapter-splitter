@@ -2,53 +2,39 @@ from metadata import Book, Chapter
 
 
 def test_book_access():
-    book = Book("978-1-80064-779-4", "10.11647/OBP.0309",
-                "The Merger Mystery", "monograph")
-    assert book.isbn == "978-1-80064-779-4"
+    book = Book("10.11647/OBP.0309", "The Merger Mystery")
     assert book.doi == "10.11647/OBP.0309"
     assert book.title == "The Merger Mystery"
-    assert book.type == "monograph"
 
 
 def test_book_defaults():
     book = Book()
-    assert book.isbn is None
     assert book.doi is None
     assert book.title is None
-    assert book.type is None
 
 
 def test_book_equality():
-    book1 = Book("978-1-80064-779-4", "10.11647/OBP.0309",
-                 "The Merger Mystery", "monograph")
-    book2 = Book("978-1-80064-779-4", "10.11647/OBP.0309",
-                 "The Merger Mystery", "monograph")
+    book1 = Book("10.11647/OBP.0309", "The Merger Mystery")
+    book2 = Book("10.11647/OBP.0309", "The Merger Mystery")
     assert book1 == book2
 
 
 def test_book_inequality():
-    book1 = Book("978-1-80064-779-4", "10.11647/OBP.0309",
-                 "The Merger Mystery", "monograph")
-    book2 = Book("978-1-80064-690-2", "10.11647/OBP.0295",
-                 "Performing Deception", "monograph")
+    book1 = Book("10.11647/OBP.0309", "The Merger Mystery")
+    book2 = Book("10.11647/OBP.0295", "Performing Deception")
     assert book1 != book2
 
 
 def test_book_from_dict():
-    dict = {"isbn": "978-1-80064-779-4", "doi": "10.11647/OBP.0309",
-            "title": "The Merger Mystery", "type": "monograph"}
+    dict = {"doi": "10.11647/OBP.0309", "title": "The Merger Mystery"}
     book = Book.from_dict(dict)
-    assert book.isbn == dict.get("isbn")
     assert book.doi == dict.get("doi")
     assert book.title == dict.get("title")
-    assert book.type == dict.get("type")
 
 
 def test_book_to_dict():
-    book = Book("978-1-80064-779-4", "10.11647/OBP.0309",
-                "The Merger Mystery", "monograph")
-    dict = {"isbn": "978-1-80064-779-4", "doi": "10.11647/OBP.0309",
-            "title": "The Merger Mystery", "type": "monograph"}
+    book = Book("10.11647/OBP.0309", "The Merger Mystery")
+    dict = {"doi": "10.11647/OBP.0309", "title": "The Merger Mystery"}
     assert book.to_dict() == dict
 
 

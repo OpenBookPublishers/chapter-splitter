@@ -11,10 +11,8 @@ from db import Crossref, Thoth
 
 @dataclass
 class Book:
-    isbn: str = None
     doi: str = None
     title: str = None
-    type: str = None
 
     @classmethod
     def from_dict(cls, d):
@@ -47,11 +45,11 @@ class Metadata:
     This class retrieve and organise book and chapters metadata
     associated to the user given ISBN.
     '''
-    def __init__(self, database="thoth", isbn=None, doi=None):
+    def __init__(self, database="thoth", doi=None):
         if database == "thoth":
             self.db = Thoth(doi)
         if database == "crossref":
-            self.db = Crossref(isbn)
+            self.db = Crossref(doi)
 
         self.book = Book.from_dict(self.db.get_book())
         self.chapters = [Chapter.from_dict(chapter) for chapter
