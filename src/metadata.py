@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from dataclasses import dataclass, asdict
-from typing import List
+from typing import List, Dict
 
 from os import path
 from datetime import datetime
@@ -57,9 +57,9 @@ class Metadata:
         self.chapters = [Chapter.from_dict(chapter) for chapter
                          in self.db.get_chapters(self.book.to_dict())]
 
-    def get_chapters(self) -> List[Chapter]:
+    def get_chapters(self) -> List[Dict]:
         """Return a list of Chapter objects"""
-        return self.chapters
+        return [chapter.to_dict() for chapter in self.chapters]
 
     @staticmethod
     def write_metadata(chapter_dict, output_file_path):
