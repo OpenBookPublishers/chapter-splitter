@@ -53,20 +53,13 @@ class Metadata:
         if database == "crossref":
             self.db = Crossref(isbn)
 
-    def get_book(self):
-        '''
-        Return the book (dataclass) object associated to the supplied ISBN
-        '''
-        data = self.db.get_book()
-        return Book.from_dict(data)
+        self.book = Book.from_dict(self.db.get_book())
+        self.chapters = [Chapter.from_dict(chapter) for chapter
+                         in self.db.get_chapters(self.book.to_dict())]
 
-    def get_chapters(self, book):
-        '''
-        Returns a python list of chapter dataclasses.
-        '''
-        chapters = [Chapter.from_dict(chapter) for chapter
-                    in self.db.get_chapters(book)]
-        return chapters
+    def get_chapters(self) -> List[Chapter]:
+        """Return a list of Chapter objects"""
+        return self.chapters
 
     @staticmethod
     def write_metadata(chapter_dict, output_file_path):

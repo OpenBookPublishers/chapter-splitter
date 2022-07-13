@@ -32,14 +32,12 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         doi = metadata_json.get("doi")
 
         metadata = Metadata(database, isbn=isbn, doi=doi)
-        book = metadata.get_book()
-        chapters = metadata.get_chapters(book.to_dict())
 
         # Create object instaces
         pdf = Pdf(input_file, tmp_dir)
 
         # Iterate over chapters metadata
-        for chapter in chapters:
+        for chapter in metadata.get_chapters():
             page_range = chapter.pages.split('-')
             output_file_name = chapter.doi.split('/')[-1] + '.pdf'
 
