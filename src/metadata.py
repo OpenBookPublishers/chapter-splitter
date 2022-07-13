@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from typing import List
 
 from os import path
@@ -29,7 +29,7 @@ class Chapter:
     author: str = None
     title: str = None
     abstract: str = None
-    pages: List[int] = field(default_factory=list)
+    pages: str = None
     doi: str = None
     licence: str = None
     publisher: str = None
