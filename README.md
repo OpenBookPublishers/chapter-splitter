@@ -1,46 +1,58 @@
 # chapter-splitter
 *chapter-splitter* is a tool to split PDF books into individual chapters.
 
-Chapter data needs to be previously submitted to (Crossref)[https://www.crossref.org/] so that `chapter-splitter` can query the server and retrieve information such as chapter page ranges, title and author(s) to add to the output PDFs.
+Chapter data needs to be previously submitted to [Crossref](https://www.crossref.org/) or [Thoth](https://thoth.pub/) so that `chapter-splitter` can query the server and retrieve information such as chapter page ranges, title and author(s) to add to the output PDFs.
 
 # Usage
 
-`chapter-splitter` requires:
+The help page $ `python3 ./main.py --help` reports:
+```
+Usage: main.py [OPTIONS] DOI
 
- - PDF of the book;
- - A metadata json file with the isbn of the book, structured as `{"isbn": "978-1-80064-422-9"}`
+Arguments:
+  DOI  [required]
+
+Options:
+  --input-file PATH               [default: ./file.pdf]
+  --output-folder PATH            [default: ./output/]
+  --database TEXT                 [default: thoth]
+  --help                          Show this message and exit.
+```
+
+so a running command would look something like this:
+
+$ `python3 ./main.py --input-file my_file.pdf --output-folder ~/output \
+                     --database crossref 10.11647/obp.0309`
+
+or querying Thoth:
+
+$ `python3 ./main.py --input-file my_file.pdf --output-folder ~/output \
+                     --database thoth 10.11647/obp.0309`
+
+`chapter-splitter` would try to append both the front cover of the original PDF and the copyright page to the output files. Page numbers (of these pages in the original document) are defined with the environment variables `COVER_PAGE` and `ENV COPYRIGHT_PAGE` (number, zero based).
+
+$ `COVER_PAGE=0`
+$ `COPYRIGHT_PAGE=4`
+
 
 ## Running with docker
-If required, specify cover and copyright page numbers (zero based) in the Dockerfile (or override it in your `docker run [...]` command) as env variables.
-
+Running the command reported above in docker would be:
 ```
 docker run --rm \
-  -v /path/to/local.pdf:/ebook_automation/pdf_file.pdf \
-  -v /path/to/local.json:/ebook_automation/pdf_file.json \
+  -v /path/to/local.pdf:/ebook_automation/file.pdf \
   -v /path/to/output:/ebook_automation/output \
-  openbookpublishers/chapter-splitter
+  openbookpublishers/chapter-splitter \
+  main.py 10.11647/obp.0309
 ```
 
 Alternatively you may clone the repo, build the image using `docker build . -t some/tag` and run the command above replacing `openbookpublishers/chapter-splitter` with `some/tag`.
 
 ## Running locally
 ### Installation
-*chapter-splitter* requires **pdftk** and **exiftool** to be installed on your system. These tools are available  in the official repositories of debian/debian-based distributions.
-Run `apt-get install pdftk exiftool`.
+*chapter-splitter* requires **exiftool** to be installed on your system. These tools are available  in the official repositories of debian/debian-based distributions.
+Run `apt-get install exiftool`.
 
 Besides python standard libraries, *chapter-splitter* requires some extra-libraries noted in `requirements.txt`. To install them (within a virtual environment, if you prefer), run `pip3.5 install requirements.txt`.
-
-#### Configuration
-If required, define cover and copyright page numbers (zero based) as env variables: $COVER_PAGE and $COPYRIGHT_PAGE.
-
-### Use
-Run the script as `python3 main.py --input-file ./input_file.pdf --output-folder /output/folder --metadata ./metadata.json`. Type `python3 main.py --help` for more info.
-
-Example:
-
-$ `python3 main.py --input-file Hobbs-Provincial-Press.pdf --output-folder /dev/shm --metadata metadata.json`
-
-You may specify `--compress-output` to output a zip file containing all the curated (without the 'original', metadata less, files) chapter PDFs.
 
 ## Dev
 ### Git hooks
