@@ -51,13 +51,13 @@ class Metadata:
         if database == "thoth":
             self.db = Thoth(doi)
         if database == "crossref":
-            self.db = Crossref()
+            self.db = Crossref(isbn)
 
-    def get_book(self, isbn):
+    def get_book(self):
         '''
         Return the book (dataclass) object associated to the supplied ISBN
         '''
-        data = self.db.get_book(isbn)
+        data = self.db.get_book()
         return Book.from_dict(data)
 
     def get_chapters(self, book):

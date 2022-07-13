@@ -8,18 +8,19 @@ from typing import Dict, List
 
 class Crossref():
     """Crossref compatibilty layer"""
-    def __init__(self):
+    def __init__(self, isbn: str):
         self.works = Works()
+        self.isbn = isbn
 
-    def get_book(self, isbn: str) -> Dict:
+    def get_book(self) -> Dict:
         """Return the book data associated to the supplied ISBN"""
-        query = self.works.filter(isbn=isbn.replace('-', '')) \
+        query = self.works.filter(isbn=self.isbn.replace('-', '')) \
                           .select('title', 'DOI', 'type')
         result = [x for x in query]
         data = {"title": result[0].get("title")[0],
                 "doi":   result[0].get("DOI"),
                 "type":  result[0].get("type"),
-                "isbn":  isbn}
+                "isbn":  self.isbn}
         return data
 
     def get_chapters(self, book: Dict) -> List:
@@ -66,7 +67,7 @@ class Thoth():
         self.thoth = ThothClient()
         self.doi_url = urljoin('https://doi.org/', doi)
 
-    def get_book(self, isbn: str) -> Dict:
+    def get_book(self) -> Dict:
         work = self.thoth.work_by_doi(doi=self.doi_url, raw=True)
         work_dict = json.loads(work)['data']['workByDoi']
 
