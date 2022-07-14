@@ -10,8 +10,8 @@ class Pdf:
         self.input_file = input_file
         self.output_folder = output_folder
 
-        self.cover_page_n = environ.get('COVER_PAGE')
-        self.copyright_page_n = environ.get('COPYRIGHT_PAGE')
+        self.cover_page_n = environ.get('COVER_PAGE', 0)
+        self.copyright_page_n = environ.get('COPYRIGHT_PAGE', 4)
 
     def merge_pdfs(self, page_range, output_file_name):
         """
