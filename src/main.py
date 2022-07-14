@@ -2,55 +2,45 @@
 
 import os
 import tempfile
-import json
-from modules.core import Core
-from modules.pdf import Pdf
-from modules.metadata import Metadata
-from modules.checks import path_checks, file_checks, dependencies_checks
+import typer
+from pathlib import Path
+from pdf import Pdf
+from metadata import Metadata
+from shutil import copy2
+
+app = typer.Typer()
 
 
-def run():
-    # Destruction of the temporary directory on completion
+@app.command()
+def run(input_file:    Path = typer.Option("./file.pdf",
+                                           exists=True, resolve_path=True),
+        output_folder: Path = typer.Option("./output/",
+                                           exists=True, resolve_path=True),
+        doi:            str = typer.Argument(...),
+        database:       str = "thoth"):
+
     with tempfile.TemporaryDirectory() as tmp_dir:
 
-        # Create core object instace
-        core = Core(tmp_dir)
-
-        # Checks
-        file_checks(core.argv.input_file)
-        file_checks(core.argv.metadata)
-        path_checks(core.argv.output_folder)
-        dependencies_checks()
-
-        # Retrieve ISBN
-        json_file = os.path.abspath(core.argv.metadata)
-        with open(json_file) as json_data:
-            isbn = json.load(json_data)['isbn'].replace('-', '')
+        metadata = Metadata(database, doi=doi)
 
         # Create object instaces
-        metadata = Metadata(isbn)
-        pdf = Pdf(core.argv.input_file, tmp_dir)
+        pdf = Pdf(input_file, tmp_dir)
 
         # Iterate over chapters metadata
-        for chapter_data in metadata.chapters_data:
-            page_range = chapter_data['page'].split('-')
-            output_file_name = chapter_data['DOI'].split('/')[1] + '.pdf'
+        for chapter in metadata.get_chapters():
+            page_range = chapter.get("pages").split('-')
+            output_file_name = chapter.get("doi").split('/')[-1] + '.pdf'
 
             # Merge PDFs
             pdf.merge_pdfs(page_range, output_file_name)
 
             # Write metadata
             output_file_path = os.path.join(tmp_dir, output_file_name)
-            metadata.write_metadata(chapter_data, output_file_path)
+            metadata.write_metadata(chapter, output_file_path)
 
-        # PDFs are temporarely stored in tmp_dir
-        if core.argv.compress:
-            # Output a zip archive
-            core.output_archive(metadata.get_doi_suffix())
-        else:
-            # Output loose PDFs
-            core.output_pdfs()
+            # copy file to output dir
+            copy2(output_file_path, output_folder)
 
 
 if __name__ == '__main__':
-    run()
+    typer.run(run)

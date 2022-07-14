@@ -1,4 +1,4 @@
-FROM python:3.8.0-slim-buster
+FROM python:3.9.0-slim-buster
 
 WORKDIR /ebook_automation
 
@@ -19,5 +19,5 @@ COPY ./src/ ./
 ENV COVER_PAGE=0
 ENV COPYRIGHT_PAGE=4
 
-CMD python main.py ./pdf_file.pdf ./output \
-                   --metadata ./pdf_file.json
+ENTRYPOINT ["python3"]
+CMD ["./main.py", "--help"]
