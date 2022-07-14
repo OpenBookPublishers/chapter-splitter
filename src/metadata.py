@@ -51,12 +51,20 @@ class Metadata:
         if database == "crossref":
             self.db = Crossref(doi)
 
-        self.book = Book.from_dict(self.db.get_book())
-        self.chapters = [Chapter.from_dict(chapter) for chapter
-                         in self.db.get_chapters(self.book.to_dict())]
+        self.book = self.fetch_book_data()
+        self.chapters = self.fetch_chapter_data()
+
+    def fetch_book_data(self) -> Book:
+        """Query DB and return book data in a Book object"""
+        return Book.from_dict(self.db.get_book())
+
+    def fetch_chapter_data(self) -> List[Chapter]:
+        """Query DB and return a list of chapter data as Chapter objects"""
+        return [Chapter.from_dict(chapter) for chapter
+                in self.db.get_chapters(self.book.to_dict())]
 
     def get_chapters(self) -> List[Dict]:
-        """Return a list of Chapter objects"""
+        """Return a list of Chapters (dictionaries)"""
         return [chapter.to_dict() for chapter in self.chapters]
 
     @staticmethod
