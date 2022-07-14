@@ -41,10 +41,14 @@ class Chapter:
 
 
 class Metadata:
-    '''
-    This class retrieve and organise book and chapters metadata
-    associated to the user given ISBN.
-    '''
+    """Class retrieve and organise book and chapters metadata
+
+    Data is retrieved from a selected source (database) and the result is
+    stored in Book and Chapter objects. These objects live inside this class:
+    every time data is sent to other modules is converted into a dictionary
+    representation. Same applies when data in fetched.
+    """
+
     def __init__(self, database="thoth", doi=None):
         if database == "thoth":
             self.db = Thoth(doi)
@@ -69,9 +73,7 @@ class Metadata:
 
     @staticmethod
     def write_metadata(chapter_dict, output_file_path):
-        """
-        Writes metadata to file_name
-        """
+        """Writes metadata to file_name"""
 
         arguments = [f"-Title={chapter_dict.get('title')}",
                      f"-Author={chapter_dict.get('author')}",
@@ -97,12 +99,11 @@ class Metadata:
 
     @staticmethod
     def get_rights(chapter_data):
-        '''
-        Compose a simple copyright statement, just like:
-        '© John Doe https://creativecommons.org/licenses/by/2.0/'
+        """Compose a simple copyright statement
 
-        Author name and licence link are pulled out from chapter_data
-        '''
+        This method return a copyright statement which looks like:
+        '© John Doe https://creativecommons.org/licenses/by/2.0/'
+        """
 
         data = {'authors_names': chapter_data.get('author'),
                 'copyright_url': chapter_data.get('licence')}
