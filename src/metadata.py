@@ -69,6 +69,9 @@ class Metadata:
 
     def get_chapters(self) -> List[Dict]:
         """Return a list of Chapters (dictionaries)"""
+        if not self.chapters:
+            raise ValueError("No chapter data retrieved from the database.")
+
         return [chapter.to_dict() for chapter in self.chapters]
 
     @staticmethod
