@@ -32,10 +32,9 @@ class Crossref():
                                   'title', 'type', 'page',
                                   'publisher', 'abstract')
 
-        # Assert that at least one DOI have been discovered
         if not query:
-            raise AssertionError('Couldn\'t find any chapter-level DOIs'
-                                 + ' for the supplied --isbn value')
+            raise ValueError("No chapter data associated to the DOI"
+                             f"{self.doi} found on the database Crossref")
 
         chapters = []
         for chapter in query:
