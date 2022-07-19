@@ -15,6 +15,11 @@ class Crossref():
     def get_book(self) -> Dict:
         """Return the book data associated to the supplied ISBN"""
         query = self.works.doi(self.doi)
+
+        if not query:
+            raise ValueError(f"No book data associated to the DOI {self.doi}"
+                             "found on the database Crossref")
+
         data = {"title": query.get("title")[0],
                 "doi":   query.get("DOI")}
         return data
