@@ -7,6 +7,7 @@ from pathlib import Path
 from pdf import Pdf
 from metadata import Metadata
 from shutil import copy2
+import re
 
 app = typer.Typer()
 
@@ -28,7 +29,7 @@ def run(input_file:    Path = typer.Option("./file.pdf",
 
         # Iterate over chapters metadata
         for chapter in metadata.get_chapters():
-            page_range = chapter.get("pages").split('-')
+            page_range = re.split('-|–', chapter.get("pages"))
             output_file_name = chapter.get("doi").split('/')[-1] + '.pdf'
 
             # Merge PDFs
