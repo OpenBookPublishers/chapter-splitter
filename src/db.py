@@ -6,15 +6,34 @@ import requests
 from typing import Dict, List
 
 
-class Crossref():
-    """Crossref compatibilty layer"""
-    def __init__(self, doi: str):
-        self.works = Works()
+class Db():
+    """Base Db class to derive specialised database classes from"""
+    def __init__(self, doi: str) -> None:
+        self.db = self.init_db()
         self.doi = urljoin('https://doi.org/', doi)
 
+    def init_db(self):
+        """Init database object"""
+        raise NotImplementedError
+
+    def get_book(self):
+        """Return book data"""
+        raise NotImplementedError
+
+    def get_chapters(self):
+        """Return chapters data"""
+        raise NotImplementedError
+
+
+class Crossref(Db):
+    """Crossref compatibility layer"""
+    def init_db(self):
+        """Init database object"""
+        return Works()
+
     def get_book(self) -> Dict:
-        """Return the book data associated to the supplied ISBN"""
-        query = self.works.doi(self.doi)
+        """Return book data"""
+        query = self.db.doi(self.doi)
 
         if not query:
             raise ValueError(f"No book data associated to the DOI {self.doi}"
@@ -25,12 +44,12 @@ class Crossref():
         return data
 
     def get_chapters(self, book: Dict) -> List:
-        """Returns a chapter data related to the book"""
-        query = self.works.filter(container_title=book.get("title"),
-                                  type='book-chapter') \
-                          .select('DOI', 'license', 'author',
-                                  'title', 'type', 'page',
-                                  'publisher', 'abstract')
+        """Return chapters data"""
+        query = self.db.filter(container_title=book.get("title"),
+                               type='book-chapter') \
+                       .select('DOI', 'license', 'author',
+                               'title', 'type', 'page',
+                               'publisher', 'abstract')
 
         if not query:
             raise ValueError("No chapter data associated to the DOI"
@@ -61,21 +80,23 @@ class Crossref():
         return '; '.join(author_list)
 
 
-class Thoth():
-    """Thoth compatibilty layer"""
-    def __init__(self, doi: str):
-        self.thoth = ThothClient()
-        self.doi_url = urljoin('https://doi.org/', doi)
+class Thoth(Db):
+    """Thoth compatibility layer"""
+    def init_db(self):
+        """Init database object"""
+        return ThothClient()
 
     def get_book(self) -> Dict:
-        work = self.thoth.work_by_doi(doi=self.doi_url, raw=True)
+        """Return book data"""
+        work = self.db.work_by_doi(doi=self.doi, raw=True)
         work_dict = json.loads(work)['data']['workByDoi']
 
         data = {"title": work_dict.get("fullTitle"),
-                "doi":   self.doi_url}
+                "doi":   self.doi}
         return data
 
     def get_chapters(self, book: Dict) -> List:
+        """Return chapters data"""
         # TODO replace this with a Thoth library method when available
         url = 'https://api.thoth.pub/graphql'
         query = {"query": """{ workByDoi (doi: "%s") {
