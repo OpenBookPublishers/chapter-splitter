@@ -52,8 +52,11 @@ class Metadata:
     def __init__(self, database="thoth", doi=None):
         if database == "thoth":
             self.db = Thoth(doi)
-        if database == "crossref":
+        elif database == "crossref":
             self.db = Crossref(doi)
+        else:
+            raise ValueError(f"Database '{database}' misspelled or not "
+                             "implemented yet.")
 
         self.book = self.fetch_book_data()
         self.chapters = self.fetch_chapter_data()
@@ -69,6 +72,9 @@ class Metadata:
 
     def get_chapters(self) -> List[Dict]:
         """Return a list of Chapters (dictionaries)"""
+        if not self.chapters:
+            raise ValueError("No chapter data retrieved from the database.")
+
         return [chapter.to_dict() for chapter in self.chapters]
 
     @staticmethod
