@@ -30,7 +30,9 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         # Iterate over chapters metadata
         for chapter in metadata.get_chapters():
             page_range = re.split('-|–', chapter.get("pages"))
-            output_file_name = chapter.get("doi").split('/')[-1] + '.pdf'
+
+            doi_fragments = chapter.get("doi").split('/')
+            output_file_name = doi_fragments[-1].lower() + '.pdf'
 
             # Merge PDFs
             pdf.merge_pdfs(page_range, output_file_name)
