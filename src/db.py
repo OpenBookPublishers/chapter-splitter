@@ -3,11 +3,13 @@ from thothlibrary import ThothClient
 from urllib.parse import urljoin
 import json
 import requests
+from os import getenv
 from typing import Dict, List
 
 
 class Db():
     """Base Db class to derive specialised database classes from"""
+
     def __init__(self, doi: str) -> None:
         self.db = self.init_db()
         self.doi = urljoin('https://doi.org/', doi)
@@ -82,6 +84,7 @@ class Crossref(Db):
 
 class Thoth(Db):
     """Thoth compatibility layer"""
+
     def init_db(self):
         """Init database object"""
         return ThothClient()
@@ -102,6 +105,7 @@ class Thoth(Db):
         query = {"query": """{ workByDoi (doi: "%s") {
                                 relations(relationTypes: HAS_CHILD) {
                                     relatedWork {
+                                        workId
                                         fullTitle
                                         copyrightHolder
                                         longAbstract
@@ -133,7 +137,56 @@ class Thoth(Db):
                     "publisher": work.get("imprint", {}).get("imprintName"),
                     "abstract":  work.get("longAbstract"),
                     "pages":     work.get("pageInterval"),
-                    "licence":   work.get("license")}
+                    "licence":   work.get("license"),
+                    "workId":    work.get("workId")}
             chapters.append(data)
 
         return chapters
+
+    def write_urls(self, chapter):
+        """Write Landing Page and Full Text URLs to Thoth"""
+        chapter_doi = chapter.get("doi").split('/')[-1].lower()
+        book_doi = chapter_doi.rpartition('.')[0]
+        landing_page_root = (
+            'https://www.openbookpublishers.com/books/10.11647/'
+            '{book_doi}/chapters/10.11647/{chapter_doi}')
+        full_text_url_root = (
+            'https://www.books.openbookpublishers.com/10.11647/'
+            '{chapter_doi}.pdf')
+
+        username = getenv('THOTH_EMAIL')
+        password = getenv('THOTH_PWD')
+        if username is None:
+            raise KeyError(
+                'No Thoth username provided '
+                '(THOTH_EMAIL environment variable not set)')
+        if password is None:
+            raise KeyError(
+                'No Thoth password provided '
+                '(THOTH_PWD environment variable not set)')
+
+        self.db.login(username, password)
+
+        publication = {"workId":          chapter.get("workId"),
+                       "publicationType": "PDF",
+                       "isbn":            None,
+                       "widthMm":         None,
+                       "widthIn":         None,
+                       "heightMm":        None,
+                       "heightIn":        None,
+                       "depthMm":         None,
+                       "depthIn":         None,
+                       "weightG":         None,
+                       "weightOz":        None}
+        publication_id = self.db.create_publication(publication)
+
+        location = {"publicationId":    publication_id,
+                    "landingPage":      landing_page_root.format(
+                        book_doi=book_doi, chapter_doi=chapter_doi),
+                    "fullTextUrl":      full_text_url_root.format(
+                        book_doi=book_doi, chapter_doi=chapter_doi),
+                    "locationPlatform": "OTHER",
+                    "canonical":        "true"}
+        self.db.create_location(location)
+
+        print('{}: URLs written to Thoth'.format(chapter_doi))

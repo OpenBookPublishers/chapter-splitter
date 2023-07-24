@@ -31,6 +31,7 @@ class Chapter:
     doi: str = None
     licence: str = None
     publisher: str = None
+    workId: str = None
 
     @classmethod
     def from_dict(cls, d):
@@ -77,6 +78,10 @@ class Metadata:
 
         return [chapter.to_dict() for chapter in self.chapters]
 
+    def write_urls(self, chapter_dict):
+        """Write URL metadata to Thoth"""
+        self.db.write_urls(chapter_dict)
+
     @staticmethod
     def write_metadata(chapter_dict, output_file_path):
         """Writes metadata to file_name"""
@@ -100,7 +105,7 @@ class Metadata:
         cmd.append(output_file_path)
 
         run(cmd)
-        print('{}: Metadata written'
+        print('{}: Metadata written to PDF'
               .format(path.split(output_file_path)[1]))
 
     @staticmethod

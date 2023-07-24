@@ -1,5 +1,5 @@
 crossrefapi==1.4.0
-pymupdf==1.18.9
+pymupdf==1.22.5
 roman==3.3
 typer==0.4.1
-thothlibrary==0.12.0
+thothlibrary==0.20.1
