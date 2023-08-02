@@ -151,7 +151,7 @@ class Thoth(Db):
             'https://www.openbookpublishers.com/books/10.11647/'
             '{book_doi}/chapters/10.11647/{chapter_doi}')
         full_text_url_root = (
-            'https://www.books.openbookpublishers.com/10.11647/'
+            'https://books.openbookpublishers.com/10.11647/'
             '{chapter_doi}.pdf')
 
         username = getenv('THOTH_EMAIL')
