@@ -20,49 +20,54 @@ class Pdf:
         PDF. These parts are front cover, copyright page and chapter body text.
         """
 
-        original_pdf = fitz.open(self.input_file)
-        real_page_range = [original_pdf.get_page_numbers(p, only_one=True)[0]
-                           for p in page_range]
+        try:
+            original_pdf = fitz.open(self.input_file)
+            real_page_range = [original_pdf.get_page_numbers(p, only_one=True)[0]
+                               for p in page_range]
 
-        chapter_pdf = fitz.open()
-        labels = []
+            chapter_pdf = fitz.open()
+            labels = []
 
-        # cover
-        if self.cover_page_n:
+            # cover
+            if self.cover_page_n:
+                chapter_pdf.insert_pdf(original_pdf,
+                                       to_page=int(self.cover_page_n))
+                labels.append({'startpage': 0, 'style': 'A',
+                               'firstpagenum': int(self.cover_page_n)})
+
+            # copyright page
+            if self.copyright_page_n:
+                chapter_pdf.insert_pdf(original_pdf,
+                                       from_page=int(self.copyright_page_n),
+                                       to_page=int(self.copyright_page_n))
+                labels.append({'startpage': 1, 'style': 'r',
+                               'firstpagenum': int(self.copyright_page_n)})
+
+            # chapter body
             chapter_pdf.insert_pdf(original_pdf,
-                                   to_page=int(self.cover_page_n))
-            labels.append({'startpage': 0, 'style': 'A',
-                           'firstpagenum': int(self.cover_page_n)})
+                                   from_page=int(real_page_range[0]),
+                                   to_page=int(real_page_range[1]))
 
-        # copyright page
-        if self.copyright_page_n:
-            chapter_pdf.insert_pdf(original_pdf,
-                                   from_page=int(self.copyright_page_n),
-                                   to_page=int(self.copyright_page_n))
-            labels.append({'startpage': 1, 'style': 'r',
-                           'firstpagenum': int(self.copyright_page_n)})
+            if page_range[0].isnumeric():
+                chapter_page = int(page_range[0])
+                chapter_style = 'D'
+            else:
+                chapter_page = fromRoman(page_range[0].upper())
+                chapter_style = 'r'
 
-        # chapter body
-        chapter_pdf.insert_pdf(original_pdf,
-                               from_page=int(real_page_range[0]),
-                               to_page=int(real_page_range[1]))
+            labels.append({'startpage': 2, 'style': chapter_style,
+                           'firstpagenum': chapter_page})
 
-        if page_range[0].isnumeric():
-            chapter_page = int(page_range[0])
-            chapter_style = 'D'
-        else:
-            chapter_page = fromRoman(page_range[0].upper())
-            chapter_style = 'r'
+            # Update page labels
+            chapter_pdf.set_page_labels(labels)
 
-        labels.append({'startpage': 2, 'style': chapter_style,
-                       'firstpagenum': chapter_page})
+            chapter_pdf.save(path.join(self.output_folder, output_file_name))
 
-        # Update page labels
-        chapter_pdf.set_page_labels(labels)
+            original_pdf.close()
+            chapter_pdf.close()
 
-        chapter_pdf.save(path.join(self.output_folder, output_file_name))
-
-        original_pdf.close()
-        chapter_pdf.close()
-
-        print('{}: Created'.format(output_file_name))
+            print('{}: Created'.format(output_file_name))
+        except (IndexError, ValueError, TypeError, OSError, FileNotFoundError,
+                fitz.FileDataError, fitz.EmptyFileError, fitz.FileNotFoundError):
+            print(self.__dict__)
+            raise
