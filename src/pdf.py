@@ -22,8 +22,13 @@ class Pdf:
 
         try:
             original_pdf = fitz.open(self.input_file)
-            real_page_range = [original_pdf.get_page_numbers(p, only_one=True)[0]
-                               for p in page_range]
+            try:
+                real_page_range = [original_pdf.get_page_numbers(p, only_one=True)[0]
+                                   for p in page_range]
+            except IndexError:
+                print(f"Error: Could not find page labels for page_range: {page_range}")
+                print(f"Original PDF page count: {len(original_pdf)}")
+                raise
 
             chapter_pdf = fitz.open()
             labels = []
