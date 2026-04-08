@@ -104,6 +104,27 @@ class Thoth(Db):
 
         return getattr(work, "fullTitle", None)
 
+    @staticmethod
+    def get_page_range(work: Dict) -> str:
+        """Return a chapter page range from Thoth metadata."""
+        page_interval = work.get("pageInterval")
+        if page_interval:
+            return page_interval
+
+        first_page = work.get("firstPage")
+        last_page = work.get("lastPage")
+
+        if first_page and last_page:
+            return f"{first_page}-{last_page}"
+
+        if first_page:
+            return f"{first_page}-{first_page}"
+
+        if last_page:
+            return f"{last_page}-{last_page}"
+
+        return None
+
     def get_book(self) -> Dict:
         """Return book data"""
         work = self.db.work_by_doi(doi=self.doi)
@@ -124,6 +145,8 @@ class Thoth(Db):
                                         copyrightHolder
                                         longAbstract
                                         pageInterval
+                                        firstPage
+                                        lastPage
                                         doi
                                         license
                                         imprint {
@@ -150,7 +173,7 @@ class Thoth(Db):
                     "title":     work.get("fullTitle"),
                     "publisher": work.get("imprint", {}).get("imprintName"),
                     "abstract":  work.get("longAbstract"),
-                    "pages":     work.get("pageInterval"),
+                    "pages":     self.get_page_range(work),
                     "licence":   work.get("license"),
                     "workId":    work.get("workId")}
             chapters.append(data)

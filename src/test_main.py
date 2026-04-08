@@ -97,3 +97,56 @@ def test_cli_runs_with_write_urls_flag(monkeypatch, tmp_path):
             "workId": "work-1",
         }
     ]
+
+
+def test_cli_raises_clear_error_when_pages_missing(monkeypatch, tmp_path):
+    input_file = tmp_path / "book.pdf"
+    output_folder = tmp_path / "output"
+    input_file.write_bytes(b"%PDF-1.4\n")
+    output_folder.mkdir()
+
+    class MockPdf:
+        def __init__(self, source, tmp_dir):
+            self.tmp_dir = Path(tmp_dir)
+
+        def merge_pdfs(self, page_range, output_file_name):
+            raise AssertionError("merge_pdfs should not be called")
+
+    class MockMetadata:
+        def __init__(self, database, doi):
+            pass
+
+        def get_chapters(self):
+            return [
+                {
+                    "pages": None,
+                    "doi": "10.11647/obp.0309.01",
+                    "workId": "work-1",
+                }
+            ]
+
+        def write_metadata(self, chapter, output_file_path):
+            raise AssertionError("write_metadata should not be called")
+
+        def write_urls(self, chapter):
+            raise AssertionError("write_urls should not be called")
+
+    monkeypatch.setattr(main, "Pdf", MockPdf)
+    monkeypatch.setattr(main, "Metadata", MockMetadata)
+
+    result = runner.invoke(
+        main.app,
+        [
+            "--input-file",
+            str(input_file),
+            "--output-folder",
+            str(output_folder),
+            "10.11647/obp.0309",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert isinstance(result.exception, ValueError)
+    assert str(result.exception) == (
+        "Missing page range for chapter 10.11647/obp.0309.01"
+    )

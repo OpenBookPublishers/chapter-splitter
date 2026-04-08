@@ -33,7 +33,14 @@ def run(input_file:    Path = typer.Option("./file.pdf",
 
         # Iterate over chapters metadata
         for chapter in metadata.get_chapters():
-            page_range = re.split('-|–', chapter.get("pages"))
+            pages = chapter.get("pages")
+            if not pages:
+                raise ValueError(
+                    "Missing page range for chapter "
+                    f"{chapter.get('doi') or chapter.get('title')}"
+                )
+
+            page_range = re.split('-|–', pages)
 
             doi_fragments = chapter.get("doi").split('/')
             output_file_name = doi_fragments[-1].lower() + '.pdf'
