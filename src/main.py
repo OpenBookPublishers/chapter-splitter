@@ -19,8 +19,10 @@ def run(input_file:    Path = typer.Option("./file.pdf",
         output_folder: Path = typer.Option("./output/",
                                            exists=True, resolve_path=True),
         doi:            str = typer.Argument(...),
-        database:       str = "thoth",
-        write_urls:     bool = True):
+        database:       str = typer.Option("thoth", "--database"),
+        write_urls:     bool = typer.Option(
+            True, "--write-urls/--no-write-urls"
+        )):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
 
@@ -56,4 +58,4 @@ def run(input_file:    Path = typer.Option("./file.pdf",
 
 
 if __name__ == '__main__':
-    typer.run(run)
+    app()
