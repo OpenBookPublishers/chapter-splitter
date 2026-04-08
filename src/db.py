@@ -89,12 +89,26 @@ class Thoth(Db):
         """Init database object"""
         return ThothClient()
 
+    @staticmethod
+    def get_canonical_title(work) -> str:
+        """Return the canonical title from a v1 Thoth work payload."""
+        titles = getattr(work, "titles", []) or []
+
+        for title in titles:
+            if getattr(title, "canonical", False):
+                return getattr(title, "fullTitle", getattr(title, "title", None))
+
+        if titles:
+            title = titles[0]
+            return getattr(title, "fullTitle", getattr(title, "title", None))
+
+        return getattr(work, "fullTitle", None)
+
     def get_book(self) -> Dict:
         """Return book data"""
-        work = self.db.work_by_doi(doi=self.doi, raw=True)
-        work_dict = json.loads(work)['data']['workByDoi']
+        work = self.db.work_by_doi(doi=self.doi)
 
-        data = {"title": work_dict.get("fullTitle"),
+        data = {"title": self.get_canonical_title(work),
                 "doi":   self.doi}
         return data
 
@@ -154,18 +168,13 @@ class Thoth(Db):
             'https://books.openbookpublishers.com/10.11647/'
             '{chapter_doi}.pdf')
 
-        username = getenv('THOTH_EMAIL')
-        password = getenv('THOTH_PWD')
-        if username is None:
+        token = getenv('THOTH_PAT')
+        if not token:
             raise KeyError(
-                'No Thoth username provided '
-                '(THOTH_EMAIL environment variable not set)')
-        if password is None:
-            raise KeyError(
-                'No Thoth password provided '
-                '(THOTH_PWD environment variable not set)')
+                'No Thoth personal access token provided '
+                '(THOTH_PAT environment variable not set)')
 
-        self.db.login(username, password)
+        self.db.set_token(token)
 
         publication = {"workId":          chapter.get("workId"),
                        "publicationType": "PDF",

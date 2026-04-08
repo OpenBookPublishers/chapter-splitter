@@ -35,10 +35,9 @@ $ `python3 ./main.py --input-file my_file.pdf --output-folder ~/output \
 $ `COVER_PAGE=0`
 $ `COPYRIGHT_PAGE=4`
 
-The `--write_urls` option attempts to write the appropriate OBP-specific Landing Page URL and Full Text URL to Thoth for each chapter created. For this, it is necessary to provide Thoth login credentials via the environment variables `THOTH_EMAIL` and `THOTH_PWD`.
+The `--write_urls` option attempts to write the appropriate OBP-specific Landing Page URL and Full Text URL to Thoth for each chapter created. For this, it is necessary to provide a Thoth personal access token via the environment variable `THOTH_PAT`.
 
-$ `THOTH_EMAIL=email@example.com`
-$ `THOTH_PWD=password`
+$ `THOTH_PAT=your-thoth-pat`
 $ `python3 ./main.py --input-file my_file.pdf --output-folder ~/output \
                      --database thoth --write-urls 10.11647/obp.0309`
 
@@ -46,8 +45,7 @@ $ `python3 ./main.py --input-file my_file.pdf --output-folder ~/output \
 Running the command reported above in docker would be:
 ```
 docker run --rm \
-  -e THOTH_EMAIL=email@example.com \
-  -e THOTH_PWD=password \
+  -e THOTH_PAT=your-thoth-pat \
   -v /path/to/local.pdf:/ebook_automation/file.pdf \
   -v /path/to/output:/ebook_automation/output \
   openbookpublishers/chapter-splitter \
