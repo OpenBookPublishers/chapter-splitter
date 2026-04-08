@@ -32,6 +32,18 @@ def test_thoth_get_book_uses_canonical_title(monkeypatch):
     }
 
 
+def test_thoth_get_page_range_falls_back_to_first_and_last_page():
+    assert Thoth.get_page_range(
+        {"pageInterval": None, "firstPage": "11", "lastPage": "20"}
+    ) == "11-20"
+
+
+def test_thoth_get_page_range_uses_single_page_when_needed():
+    assert Thoth.get_page_range(
+        {"pageInterval": None, "firstPage": "7", "lastPage": None}
+    ) == "7-7"
+
+
 def test_thoth_write_urls_uses_pat_and_preserves_payloads(monkeypatch):
     class MockDb:
         def __init__(self):
