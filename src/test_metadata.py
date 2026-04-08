@@ -60,7 +60,7 @@ def test_chapter_defaults():
     assert chapter.author is None
     assert chapter.title is None
     assert chapter.abstract is None
-    assert chapter.pages == []
+    assert chapter.pages is None
     assert chapter.doi is None
     assert chapter.licence is None
     assert chapter.publisher is None
@@ -116,5 +116,6 @@ def test_chapter_to_dict():
             "pages": "vii–xii",
             "doi": "10.11647/obp.0295.09",
             "licence": "https://creativecommons.org/licenses/by-nc/4.0/",
-            "publisher": "Open Book Publishers"}
+            "publisher": "Open Book Publishers",
+            "workId": None}
     assert chapter.to_dict() == dict
